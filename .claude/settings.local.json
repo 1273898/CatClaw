@@ -47,7 +47,10 @@
       "Bash(curl -s \"https://raw.githubusercontent.com/openclaw/openclaw/main/packages/memory-host-sdk/src/engine-foundation.ts\")",
       "Bash(curl -s \"https://raw.githubusercontent.com/openclaw/openclaw/main/packages/memory-host-sdk/src/engine-embeddings.ts\")",
       "Bash(git commit -m 'Add core tools and RAG system *)",
-      "Bash(git commit -m 'Implement Web UI interface *)"
+      "Bash(git commit -m 'Implement Web UI interface *)",
+      "Read(//c/Users/Administrator/.pip/**)",
+      "Read(//c/Users/Administrator/.config/pip/**)",
+      "Bash(git commit -m 'Add startup scripts and fix build system *)"
     ]
   }
 }
