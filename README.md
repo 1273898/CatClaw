@@ -1,4 +1,4 @@
-# 🦞 PrivateClaw
+# PrivateClaw
 
 Your own private AI assistant, powered by LangChain.
 

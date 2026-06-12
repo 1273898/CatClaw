@@ -77,7 +77,7 @@ def chat(ctx, session):
 
     console.print(Panel(
         "Welcome to PrivateClaw! Type 'exit' or 'quit' to end the session.",
-        title="🦞 PrivateClaw Chat",
+        title="PrivateClaw Chat",
         style="blue",
     ))
 

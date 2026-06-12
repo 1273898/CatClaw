@@ -206,7 +206,7 @@ def _get_default_index() -> str:
 </head>
 <body>
     <div class="header">
-        <h1>🦞 PrivateClaw</h1>
+        <h1>PrivateClaw</h1>
         <span>Your Private AI Assistant</span>
     </div>
     <div class="chat-container" id="chatContainer">
