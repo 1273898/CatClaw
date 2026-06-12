@@ -6,71 +6,33 @@
     <title>PrivateClaw - 你的私人AI助手</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦞</text></svg>">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="app-container">
         <!-- 侧边栏 -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <div class="logo-section">
-                    <div class="logo-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                            <path d="M2 17l10 5 10-5"></path>
-                            <path d="M2 12l10 5 10-5"></path>
-                        </svg>
-                    </div>
-                    <span class="logo-text">PrivateClaw</span>
-                </div>
+                <span class="sidebar-title">🦞 PrivateClaw</span>
                 <button class="btn-icon" id="newSession" title="新建会话">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="12" y1="5" x2="12" y2="19"></line>
                         <line x1="5" y1="12" x2="19" y2="12"></line>
                     </svg>
                 </button>
             </div>
 
-            <div class="sidebar-content">
-                <div class="sidebar-section">
-                    <div class="section-header">
-                        <span class="section-title">会话</span>
-                        <span class="session-count" id="sessionCount">0</span>
-                    </div>
-                    <ul class="session-list" id="sessionList">
-                        <!-- 会话将在这里加载 -->
-                    </ul>
-                </div>
-
-                <div class="sidebar-section">
-                    <div class="section-header">
-                        <span class="section-title">工具</span>
-                        <span class="tool-count" id="toolCount">0</span>
-                    </div>
-                    <ul class="tools-list" id="toolsList">
-                        <!-- 工具将在这里加载 -->
-                    </ul>
-                </div>
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">会话列表</div>
+                <ul class="session-list" id="sessionList">
+                    <!-- 会话将在这里加载 -->
+                </ul>
             </div>
 
-            <div class="sidebar-footer">
-                <div class="user-info">
-                    <div class="user-avatar">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                    </div>
-                    <span class="user-name">本地模式</span>
-                </div>
-                <button class="btn-icon" id="toggleSettings" title="设置">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="3"></circle>
-                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                    </svg>
-                </button>
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">可用工具</div>
+                <ul class="tools-list" id="toolsList">
+                    <!-- 工具将在这里加载 -->
+                </ul>
             </div>
         </aside>
 
@@ -79,250 +41,155 @@
             <!-- 头部 -->
             <header class="header">
                 <div class="header-left">
-                    <button class="btn-icon mobile-menu" id="toggleSidebar" title="切换侧边栏">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <button class="btn-icon" id="toggleSidebar" title="切换侧边栏">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="3" y1="12" x2="21" y2="12"></line>
                             <line x1="3" y1="6" x2="21" y2="6"></line>
                             <line x1="3" y1="18" x2="21" y2="18"></line>
                         </svg>
                     </button>
-                    <div class="header-info">
-                        <h1 class="header-title">新对话</h1>
-                        <div class="header-meta">
-                            <span class="model-badge" id="currentModel">deepseek-v4-flash</span>
-                            <span class="status-dot online"></span>
-                            <span class="status-text">在线</span>
-                        </div>
+                    <div>
+                        <h1>PrivateClaw</h1>
+                        <div class="header-subtitle">你的私人AI助手</div>
                     </div>
                 </div>
                 <div class="header-actions">
-                    <button class="btn btn-ghost" id="clearChat" title="清空对话">
+                    <button class="btn btn-secondary" id="clearChat">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="3 6 5 6 21 6"></polyline>
                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                         </svg>
-                        <span>清空</span>
+                        清空
                     </button>
-                    <button class="btn btn-ghost" id="exportChat" title="导出对话">
+                    <button class="btn btn-secondary" id="toggleSettings">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                            <polyline points="7 10 12 15 17 10"></polyline>
-                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                         </svg>
-                        <span>导出</span>
+                        设置
                     </button>
                 </div>
             </header>
 
             <!-- 聊天区域 -->
             <div class="chat-container" id="chatContainer">
-                <!-- 欢迎页面 -->
-                <div class="welcome-screen" id="welcomeScreen">
-                    <div class="welcome-content">
-                        <div class="welcome-icon">
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                                <path d="M2 17l10 5 10-5"></path>
-                                <path d="M2 12l10 5 10-5"></path>
-                            </svg>
-                        </div>
-                        <h2 class="welcome-title">PrivateClaw</h2>
-                        <p class="welcome-subtitle">你的私人AI助手</p>
-                        <div class="welcome-features">
-                            <div class="feature-card">
-                                <div class="feature-icon">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                                    </svg>
-                                </div>
-                                <span>智能对话</span>
-                            </div>
-                            <div class="feature-card">
-                                <div class="feature-icon">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
-                                    </svg>
-                                </div>
-                                <span>工具调用</span>
-                            </div>
-                            <div class="feature-card">
-                                <div class="feature-icon">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <circle cx="11" cy="11" r="8"></circle>
-                                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                                    </svg>
-                                </div>
-                                <span>知识检索</span>
-                            </div>
-                            <div class="feature-card">
-                                <div class="feature-icon">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                                    </svg>
-                                </div>
-                                <span>隐私安全</span>
-                            </div>
-                        </div>
-                        <div class="welcome-hint">
-                            <span>开始输入消息或使用以下快捷方式</span>
-                        </div>
-                        <div class="quick-actions">
-                            <button class="quick-action" data-message="帮我介绍一下 PrivateClaw">
-                                <span>介绍功能</span>
-                            </button>
-                            <button class="quick-action" data-message="今天天气怎么样？">
-                                <span>天气查询</span>
-                            </button>
-                            <button class="quick-action" data-message="帮我写一段 Python 代码">
-                                <span>代码生成</span>
-                            </button>
-                        </div>
+                <div class="message assistant">
+                    <div class="message-content">
+                        你好！我是 PrivateClaw，你的私人AI助手。🦞
+                        <br><br>
+                        我可以帮你：
+                        <br>• 回答问题和提供信息
+                        <br>• 使用工具执行任务
+                        <br>• 读写文件
+                        <br>• 搜索网络
+                        <br>• 以及更多！
+                        <br><br>
+                        今天我能为你做什么？
                     </div>
-                </div>
-
-                <!-- 消息列表 -->
-                <div class="messages-list" id="messagesList" style="display: none;">
-                    <!-- 消息将在这里动态加载 -->
+                    <div class="message-time">刚刚</div>
                 </div>
             </div>
 
             <!-- 输入指示器 -->
             <div class="typing-indicator" id="typingIndicator">
-                <div class="typing-content">
-                    <div class="typing-dots">
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                    </div>
-                    <span class="typing-text">AI 正在思考...</span>
-                </div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
             </div>
 
             <!-- 输入区域 -->
             <div class="input-container">
                 <div class="input-wrapper">
-                    <div class="input-box">
-                        <textarea
-                            id="messageInput"
-                            placeholder="输入消息... (Shift+Enter 换行)"
-                            rows="1"
-                        ></textarea>
-                        <div class="input-actions">
-                            <button class="btn-icon attach-btn" title="附件">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
-                                </svg>
-                            </button>
-                            <button class="send-button" id="sendButton" disabled>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="input-hint">
-                        <span>按 Enter 发送，Shift+Enter 换行</span>
-                    </div>
+                    <textarea
+                        id="messageInput"
+                        placeholder="输入消息... (Shift+Enter 换行)"
+                        rows="1"
+                    ></textarea>
                 </div>
+                <button class="send-button" id="sendButton">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                    发送
+                </button>
+            </div>
+
+            <!-- 状态栏 -->
+            <div class="status-bar">
+                <div class="status-indicator">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="statusText">连接中...</span>
+                </div>
+                <div id="connectionStatus">会话: <span id="sessionId"></span></div>
             </div>
         </main>
     </div>
 
     <!-- 设置面板 -->
-    <div class="settings-overlay" id="settingsOverlay">
-        <div class="settings-panel" id="settingsPanel">
-            <div class="settings-header">
-                <h2 class="settings-title">设置</h2>
-                <button class="btn-icon" id="closeSettings">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-header">
+            <h2 class="settings-title">设置</h2>
+            <button class="btn-icon" id="closeSettings">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="settings-content">
+            <form id="settingsForm">
+                <div class="settings-group">
+                    <div class="settings-group-title">大模型配置</div>
+                    <div class="settings-item">
+                        <label class="settings-label">提供商</label>
+                        <select class="settings-select" name="provider">
+                            <option value="deepseek">DeepSeek</option>
+                            <option value="openai">OpenAI</option>
+                            <option value="anthropic">Anthropic</option>
+                            <option value="ollama">Ollama (本地)</option>
+                        </select>
+                    </div>
+                    <div class="settings-item">
+                        <label class="settings-label">模型</label>
+                        <input class="settings-input" type="text" name="model" value="deepseek-v4-flash" placeholder="模型名称">
+                    </div>
+                    <div class="settings-item">
+                        <label class="settings-label">温度</label>
+                        <input class="settings-input" type="number" name="temperature" value="0.7" min="0" max="2" step="0.1">
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <div class="settings-group-title">记忆</div>
+                    <div class="settings-item">
+                        <label class="settings-label">短期记忆限制</label>
+                        <input class="settings-input" type="number" name="memoryLimit" value="50" min="10" max="200">
+                    </div>
+                    <div class="settings-item">
+                        <label class="settings-label">启用长期记忆</label>
+                        <select class="settings-select" name="longTermMemory">
+                            <option value="true">启用</option>
+                            <option value="false">禁用</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <div class="settings-group-title">外观</div>
+                    <div class="settings-item">
+                        <label class="settings-label">主题</label>
+                        <select class="settings-select" name="theme">
+                            <option value="dark">深色</option>
+                            <option value="light">浅色</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    保存设置
                 </button>
-            </div>
-            <div class="settings-content">
-                <form id="settingsForm">
-                    <div class="settings-group">
-                        <div class="group-header">
-                            <div class="group-icon">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="3"></circle>
-                                    <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
-                                </svg>
-                            </div>
-                            <span class="group-title">大模型配置</span>
-                        </div>
-                        <div class="settings-item">
-                            <label class="settings-label">提供商</label>
-                            <select class="settings-select" name="provider">
-                                <option value="deepseek">DeepSeek</option>
-                                <option value="openai">OpenAI</option>
-                                <option value="anthropic">Anthropic</option>
-                                <option value="ollama">Ollama (本地)</option>
-                            </select>
-                        </div>
-                        <div class="settings-item">
-                            <label class="settings-label">模型</label>
-                            <input class="settings-input" type="text" name="model" value="deepseek-v4-flash" placeholder="模型名称">
-                        </div>
-                        <div class="settings-item">
-                            <label class="settings-label">温度</label>
-                            <div class="temperature-control">
-                                <input class="settings-range" type="range" name="temperature" value="0.7" min="0" max="2" step="0.1">
-                                <span class="temperature-value">0.7</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="settings-group">
-                        <div class="group-header">
-                            <div class="group-icon">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 12a9 9 0 0 1-9 9m9-9a9 9 0 0 0-9-9m9 9H3m9 9a9 9 0 0 1-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"></path>
-                                </svg>
-                            </div>
-                            <span class="group-title">记忆设置</span>
-                        </div>
-                        <div class="settings-item">
-                            <label class="settings-label">短期记忆限制</label>
-                            <input class="settings-input" type="number" name="memoryLimit" value="50" min="10" max="200">
-                        </div>
-                        <div class="settings-item">
-                            <label class="settings-label">启用长期记忆</label>
-                            <div class="toggle-switch">
-                                <input type="checkbox" name="longTermMemory" id="longTermMemory" checked>
-                                <label for="longTermMemory"></label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="settings-group">
-                        <div class="group-header">
-                            <div class="group-icon">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                                    <line x1="9" y1="9" x2="9.01" y2="9"></line>
-                                    <line x1="15" y1="9" x2="15.01" y2="9"></line>
-                                </svg>
-                            </div>
-                            <span class="group-title">外观</span>
-                        </div>
-                        <div class="settings-item">
-                            <label class="settings-label">主题</label>
-                            <select class="settings-select" name="theme">
-                                <option value="dark">深色</option>
-                                <option value="light">浅色</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary settings-save">
-                        保存设置
-                    </button>
-                </form>
-            </div>
+            </form>
         </div>
     </div>
 
