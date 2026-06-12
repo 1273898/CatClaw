@@ -13,6 +13,7 @@ from privateclaw.core.memory.manager import MemoryManager
 from privateclaw.core.tools.registry import ToolRegistry
 from privateclaw.core.session.manager import SessionManager
 from privateclaw.channels.base import BaseChannel
+from privateclaw.channels.web import WebChannel
 
 
 class Gateway:
@@ -120,10 +121,19 @@ class Gateway:
         """Start the gateway."""
         await self.initialize()
 
-        # Start channels
-        # TODO: Initialize configured channels
+        # Start web channel if enabled
+        if self.config.channels.web_enabled:
+            web_channel = WebChannel({
+                "host": self.config.channels.web_host,
+                "port": self.config.channels.web_port,
+            })
+            web_channel.set_agent(self.agent)
+            web_channel.set_memory(self.memory)
+            web_channel.set_session_manager(self.session_manager)
+            self.add_channel(web_channel)
+            await web_channel.start()
 
-        # Start web server
+        # Start web server for API
         uvicorn_config = uvicorn.Config(
             self.app,
             host=self.config.gateway.host,
