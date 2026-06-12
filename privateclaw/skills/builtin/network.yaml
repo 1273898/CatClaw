@@ -1,0 +1,131 @@
+# Network Operations Skills
+
+skills:
+  # HTTP Operations
+  - name: http_get
+    description: Make HTTP GET request
+    category: network
+    parameters:
+      url:
+        type: string
+        required: true
+        description: URL to request
+      headers:
+        type: object
+        description: Request headers
+      timeout:
+        type: integer
+        default: 30
+        description: Request timeout in seconds
+    steps:
+      - Validate URL
+      - Make GET request
+      - Parse response
+      - Return result
+
+  - name: http_post
+    description: Make HTTP POST request
+    category: network
+    parameters:
+      url:
+        type: string
+        required: true
+        description: URL to request
+      data:
+        type: object
+        description: POST data
+      headers:
+        type: object
+        description: Request headers
+      content_type:
+        type: string
+        default: application/json
+        description: Content type
+    steps:
+      - Validate URL
+      - Prepare POST data
+      - Make POST request
+      - Parse response
+      - Return result
+
+  # Web Scraping
+  - name: fetch_webpage
+    description: Fetch and parse webpage content
+    category: network
+    parameters:
+      url:
+        type: string
+        required: true
+        description: URL to fetch
+      extract_text:
+        type: boolean
+        default: true
+        description: Extract text only
+      selector:
+        type: string
+        description: CSS selector for specific content
+    steps:
+      - Fetch webpage
+      - Parse HTML
+      - Extract content
+      - Clean and format
+      - Return content
+
+  # DNS Operations
+  - name: dns_lookup
+    description: Perform DNS lookup
+    category: network
+    parameters:
+      hostname:
+        type: string
+        required: true
+        description: Hostname to lookup
+      record_type:
+        type: string
+        default: A
+        description: DNS record type (A, AAAA, MX, etc.)
+    steps:
+      - Validate hostname
+      - Perform DNS lookup
+      - Return records
+
+  # Port Check
+  - name: port_check
+    description: Check if a port is open
+    category: network
+    parameters:
+      host:
+        type: string
+        required: true
+        description: Host to check
+      port:
+        type: integer
+        required: true
+        description: Port to check
+      timeout:
+        type: integer
+        default: 5
+        description: Connection timeout
+    steps:
+      - Validate host and port
+      - Attempt connection
+      - Return status
+
+  # Ping
+  - name: ping
+    description: Ping a host
+    category: network
+    parameters:
+      host:
+        type: string
+        required: true
+        description: Host to ping
+      count:
+        type: integer
+        default: 4
+        description: Number of pings
+    steps:
+      - Validate host
+      - Send ping requests
+      - Calculate statistics
+      - Return results

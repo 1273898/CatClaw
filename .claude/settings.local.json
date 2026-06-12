@@ -58,7 +58,13 @@
       "Bash(python -c \"from privateclaw.core.llm.factory import LLMFactory; print\\('Import OK'\\); print\\(LLMFactory.list_providers\\(\\)\\)\")",
       "Bash(python -c \"print\\('Hello'\\)\")",
       "Bash(where python *)",
-      "Bash(git commit -m 'Fix LangChain AgentExecutor import compatibility *)"
+      "Bash(git commit -m 'Fix LangChain AgentExecutor import compatibility *)",
+      "Bash(timeout 10 python run.py serve)",
+      "Bash(python -c \"from privateclaw.core.agent.agent import PrivateClawAgent; print\\('Import OK'\\)\")",
+      "Bash(python -c \"print\\('test'\\)\")",
+      "Bash(echo \"Python failed with exit code $?\")",
+      "Bash(powershell *)",
+      "Bash(git commit -m 'Fix syntax error in embeddings.py \\(unterminated string\\) *)"
     ]
   }
 }

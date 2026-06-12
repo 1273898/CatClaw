@@ -1,0 +1,254 @@
+# Development Tools Skills
+
+skills:
+  # Git Operations
+  - name: git_clone
+    description: Clone a git repository
+    category: dev
+    parameters:
+      url:
+        type: string
+        required: true
+        description: Repository URL
+      directory:
+        type: string
+        description: Target directory
+      branch:
+        type: string
+        description: Branch to clone
+      depth:
+        type: integer
+        description: Clone depth (shallow clone)
+    steps:
+      - Validate repository URL
+      - Clone repository
+      - Verify clone
+
+  - name: git_status
+    description: Get git repository status
+    category: dev
+    parameters:
+      path:
+        type: string
+        default: "."
+        description: Repository path
+    steps:
+      - Check if git repository
+      - Get status
+      - Return status
+
+  - name: git_commit
+    description: Commit changes
+    category: dev
+    parameters:
+      message:
+        type: string
+        required: true
+        description: Commit message
+      path:
+        type: string
+        default: "."
+        description: Repository path
+      add_all:
+        type: boolean
+        default: true
+        description: Add all changes
+    steps:
+      - Check if git repository
+      - Stage changes
+      - Commit
+      - Return commit hash
+
+  - name: git_push
+    description: Push changes to remote
+    category: dev
+    parameters:
+      remote:
+        type: string
+        default: origin
+        description: Remote name
+      branch:
+        type: string
+        description: Branch to push
+      path:
+        type: string
+        default: "."
+        description: Repository path
+    steps:
+      - Check if git repository
+      - Push changes
+      - Return result
+
+  - name: git_pull
+    description: Pull changes from remote
+    category: dev
+    parameters:
+      remote:
+        type: string
+        default: origin
+        description: Remote name
+      branch:
+        type: string
+        description: Branch to pull
+      path:
+        type: string
+        default: "."
+        description: Repository path
+    steps:
+      - Check if git repository
+      - Pull changes
+      - Return result
+
+  # Docker Operations
+  - name: docker_ps
+    description: List Docker containers
+    category: dev
+    parameters:
+      all:
+        type: boolean
+        default: false
+        description: Show all containers
+      filter:
+        type: string
+        description: Filter containers
+    steps:
+      - List containers
+      - Apply filters
+      - Return container list
+
+  - name: docker_run
+    description: Run a Docker container
+    category: dev
+    parameters:
+      image:
+        type: string
+        required: true
+        description: Docker image
+      name:
+        type: string
+        description: Container name
+      ports:
+        type: object
+        description: Port mappings
+      volumes:
+        type: object
+        description: Volume mappings
+      environment:
+        type: object
+        description: Environment variables
+      detach:
+        type: boolean
+        default: true
+        description: Run in background
+    steps:
+      - Validate image
+      - Run container
+      - Return container ID
+
+  - name: docker_stop
+    description: Stop a Docker container
+    category: dev
+    parameters:
+      container:
+        type: string
+        required: true
+        description: Container name or ID
+    steps:
+      - Stop container
+      - Verify stop
+
+  - name: docker_logs
+    description: Get Docker container logs
+    category: dev
+    parameters:
+      container:
+        type: string
+        required: true
+        description: Container name or ID
+      lines:
+        type: integer
+        default: 100
+        description: Number of lines
+      follow:
+        type: boolean
+        default: false
+        description: Follow logs
+    steps:
+      - Get container logs
+      - Return logs
+
+  # Python Operations
+  - name: python_run
+    description: Run Python script
+    category: dev
+    parameters:
+      script:
+        type: string
+        required: true
+        description: Python script path or code
+      args:
+        type: array
+        description: Script arguments
+      python_path:
+        type: string
+        description: Python interpreter path
+    steps:
+      - Validate script
+      - Execute script
+      - Capture output
+      - Return result
+
+  - name: pip_install
+    description: Install Python package
+    category: dev
+    parameters:
+      package:
+        type: string
+        required: true
+        description: Package name
+      version:
+        type: string
+        description: Package version
+      requirements:
+        type: string
+        description: Requirements file path
+    steps:
+      - Install package
+      - Verify installation
+
+  # Node.js Operations
+  - name: npm_install
+    description: Install npm packages
+    category: dev
+    parameters:
+      package:
+        type: string
+        description: Package name
+      global:
+        type: boolean
+        default: false
+        description: Install globally
+      dev:
+        type: boolean
+        default: false
+        description: Install as dev dependency
+    steps:
+      - Install package
+      - Verify installation
+
+  - name: npm_run
+    description: Run npm script
+    category: dev
+    parameters:
+      script:
+        type: string
+        required: true
+        description: Script name
+      path:
+        type: string
+        default: "."
+        description: Project path
+    steps:
+      - Run script
+      - Capture output
+      - Return result

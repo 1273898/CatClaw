@@ -1,0 +1,259 @@
+# Remote Access Skills
+
+skills:
+  # SSH Operations
+  - name: ssh_connect
+    description: Connect to remote server via SSH
+    category: remote
+    parameters:
+      host:
+        type: string
+        required: true
+        description: Remote host
+      port:
+        type: integer
+        default: 22
+        description: SSH port
+      username:
+        type: string
+        required: true
+        description: SSH username
+      password:
+        type: string
+        description: SSH password (not recommended, use key)
+      key_file:
+        type: string
+        description: Path to SSH private key
+    steps:
+      - Validate connection parameters
+      - Establish SSH connection
+      - Authenticate
+      - Return connection handle
+
+  - name: ssh_execute
+    description: Execute command on remote server via SSH
+    category: remote
+    parameters:
+      host:
+        type: string
+        required: true
+        description: Remote host
+      command:
+        type: string
+        required: true
+        description: Command to execute
+      username:
+        type: string
+        required: true
+        description: SSH username
+      password:
+        type: string
+        description: SSH password
+      key_file:
+        type: string
+        description: Path to SSH private key
+      timeout:
+        type: integer
+        default: 30
+        description: Command timeout
+    steps:
+      - Establish SSH connection
+      - Execute command
+      - Capture output
+      - Close connection
+      - Return result
+
+  - name: ssh_upload
+    description: Upload file to remote server via SCP
+    category: remote
+    parameters:
+      local_path:
+        type: string
+        required: true
+        description: Local file path
+      remote_path:
+        type: string
+        required: true
+        description: Remote file path
+      host:
+        type: string
+        required: true
+        description: Remote host
+      username:
+        type: string
+        required: true
+        description: SSH username
+      password:
+        type: string
+        description: SSH password
+      key_file:
+        type: string
+        description: Path to SSH private key
+    steps:
+      - Validate local file exists
+      - Establish SSH connection
+      - Upload file
+      - Verify upload
+      - Close connection
+
+  - name: ssh_download
+    description: Download file from remote server via SCP
+    category: remote
+    parameters:
+      remote_path:
+        type: string
+        required: true
+        description: Remote file path
+      local_path:
+        type: string
+        required: true
+        description: Local file path
+      host:
+        type: string
+        required: true
+        description: Remote host
+      username:
+        type: string
+        required: true
+        description: SSH username
+      password:
+        type: string
+        description: SSH password
+      key_file:
+        type: string
+        description: Path to SSH private key
+    steps:
+      - Establish SSH connection
+      - Download file
+      - Verify download
+      - Close connection
+
+  # Remote Desktop
+  - name: rdp_connect
+    description: Connect to remote desktop (RDP)
+    category: remote
+    parameters:
+      host:
+        type: string
+        required: true
+        description: Remote host
+      port:
+        type: integer
+        default: 3389
+        description: RDP port
+      username:
+        type: string
+        required: true
+        description: RDP username
+      password:
+        type: string
+        required: true
+        description: RDP password
+      resolution:
+        type: string
+        default: 1920x1080
+        description: Screen resolution
+    steps:
+      - Validate connection parameters
+      - Launch RDP client
+      - Connect to remote host
+
+  # VNC
+  - name: vnc_connect
+    description: Connect to VNC server
+    category: remote
+    parameters:
+      host:
+        type: string
+        required: true
+        description: VNC host
+      port:
+        type: integer
+        default: 5900
+        description: VNC port
+      password:
+        type: string
+        description: VNC password
+    steps:
+      - Validate connection parameters
+      - Launch VNC client
+      - Connect to VNC server
+
+  # Remote File Management
+  - name: remote_file_list
+    description: List files on remote server
+    category: remote
+    parameters:
+      host:
+        type: string
+        required: true
+        description: Remote host
+      path:
+        type: string
+        default: "."
+        description: Remote directory path
+      username:
+        type: string
+        required: true
+        description: SSH username
+      password:
+        type: string
+        description: SSH password
+      key_file:
+        type: string
+        description: Path to SSH private key
+    steps:
+      - Establish SSH connection
+      - List files
+      - Close connection
+      - Return file list
+
+  # API Access
+  - name: api_call
+    description: Make authenticated API call
+    category: remote
+    parameters:
+      url:
+        type: string
+        required: true
+        description: API endpoint URL
+      method:
+        type: string
+        default: GET
+        description: HTTP method
+      headers:
+        type: object
+        description: Request headers
+      data:
+        type: object
+        description: Request data
+      auth_type:
+        type: string
+        default: bearer
+        description: Authentication type (bearer/basic/api_key)
+      auth_token:
+        type: string
+        description: Authentication token
+    steps:
+      - Validate API endpoint
+      - Prepare authentication
+      - Make API call
+      - Parse response
+      - Return result
+
+  # WebSocket
+  - name: websocket_connect
+    description: Connect to WebSocket server
+    category: remote
+    parameters:
+      url:
+        type: string
+        required: true
+        description: WebSocket URL
+      headers:
+        type: object
+        description: Connection headers
+    steps:
+      - Validate WebSocket URL
+      - Establish connection
+      - Return connection handle

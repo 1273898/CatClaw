@@ -1,0 +1,155 @@
+# System Operations Skills
+
+skills:
+  # File Operations
+  - name: file_read
+    description: Read file contents
+    category: system
+    parameters:
+      path:
+        type: string
+        required: true
+        description: File path to read
+      encoding:
+        type: string
+        default: utf-8
+        description: File encoding
+    steps:
+      - Validate file exists
+      - Check read permissions
+      - Read file content
+      - Return content
+
+  - name: file_write
+    description: Write content to file
+    category: system
+    parameters:
+      path:
+        type: string
+        required: true
+        description: File path to write
+      content:
+        type: string
+        required: true
+        description: Content to write
+      encoding:
+        type: string
+        default: utf-8
+        description: File encoding
+      mode:
+        type: string
+        default: overwrite
+        description: Write mode (overwrite/append)
+    steps:
+      - Validate directory exists
+      - Check write permissions
+      - Write content
+      - Verify write
+
+  - name: file_list
+    description: List files in directory
+    category: system
+    parameters:
+      path:
+        type: string
+        required: true
+        description: Directory path
+      pattern:
+        type: string
+        default: "*"
+        description: File pattern (glob)
+      recursive:
+        type: boolean
+        default: false
+        description: Search recursively
+    steps:
+      - Validate directory exists
+      - List files matching pattern
+      - Return file list
+
+  - name: file_delete
+    description: Delete a file
+    category: system
+    parameters:
+      path:
+        type: string
+        required: true
+        description: File path to delete
+    steps:
+      - Validate file exists
+      - Confirm deletion
+      - Delete file
+      - Verify deletion
+
+  - name: file_copy
+    description: Copy a file
+    category: system
+    parameters:
+      source:
+        type: string
+        required: true
+        description: Source file path
+      destination:
+        type: string
+        required: true
+        description: Destination file path
+    steps:
+      - Validate source exists
+      - Check destination directory
+      - Copy file
+      - Verify copy
+
+  # Process Operations
+  - name: process_list
+    description: List running processes
+    category: system
+    parameters:
+      name_filter:
+        type: string
+        description: Filter by process name
+    steps:
+      - Get process list
+      - Apply filter if specified
+      - Return process list
+
+  - name: process_kill
+    description: Kill a process by PID
+    category: system
+    parameters:
+      pid:
+        type: integer
+        required: true
+        description: Process ID to kill
+      force:
+        type: boolean
+        default: false
+        description: Force kill
+    steps:
+      - Validate PID exists
+      - Kill process
+      - Verify termination
+
+  # System Info
+  - name: system_info
+    description: Get system information
+    category: system
+    parameters: {}
+    steps:
+      - Get OS info
+      - Get CPU info
+      - Get memory info
+      - Get disk info
+      - Return system info
+
+  - name: disk_usage
+    description: Get disk usage information
+    category: system
+    parameters:
+      path:
+        type: string
+        default: "/"
+        description: Path to check
+    steps:
+      - Get disk usage
+      - Calculate free space
+      - Return usage info

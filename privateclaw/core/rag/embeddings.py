@@ -122,7 +122,7 @@ class OllamaEmbeddingProvider(EmbeddingProvider):
             except ImportError:
                 raise ImportError(
                     "langchain-community is required for Ollama embeddings. "
-                    "Install with: pip install langchain-community
+                    "Install with: pip install langchain-community"
                 )
         return self._client
 
