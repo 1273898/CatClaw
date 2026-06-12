@@ -122,10 +122,10 @@ class Gateway:
         await self.initialize()
 
         # Start web channel if enabled
-        if self.config.channels.web_enabled:
+        if self.config.channel_web_enabled:
             web_channel = WebChannel({
-                "host": self.config.channels.web_host,
-                "port": self.config.channels.web_port,
+                "host": self.config.channel_web_host,
+                "port": self.config.channel_web_port,
             })
             web_channel.set_agent(self.agent)
             web_channel.set_memory(self.memory)
@@ -136,8 +136,8 @@ class Gateway:
         # Start web server for API
         uvicorn_config = uvicorn.Config(
             self.app,
-            host=self.config.gateway.host,
-            port=self.config.gateway.port,
+            host=self.config.gateway_host,
+            port=self.config.gateway_port,
             log_level=self.config.log_level.lower(),
         )
         server = uvicorn.Server(uvicorn_config)

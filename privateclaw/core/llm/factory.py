@@ -176,12 +176,12 @@ class LLMFactory:
     def create_from_settings(cls, settings) -> BaseChatModel:
         """Create an LLM instance from settings."""
         config = LLMConfig(
-            provider=settings.llm.provider,
-            model=settings.llm.model,
-            temperature=settings.llm.temperature,
-            max_tokens=settings.llm.max_tokens,
-            api_key=settings.llm.api_key,
-            api_base=settings.llm.api_base,
+            provider=settings.llm_provider,
+            model=settings.llm_model,
+            temperature=settings.llm_temperature,
+            max_tokens=settings.llm_max_tokens,
+            api_key=settings.llm_api_key,
+            api_base=settings.llm_api_base,
         )
         return cls.create(config)
 

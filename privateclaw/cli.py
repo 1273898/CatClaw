@@ -54,8 +54,8 @@ def serve(ctx, host, port):
     from privateclaw.gateway.server import Gateway
 
     settings = ctx.obj["settings"]
-    settings.gateway.host = host
-    settings.gateway.port = port
+    settings.gateway_host = host
+    settings.gateway_port = port
 
     gateway = Gateway(settings)
 
@@ -170,15 +170,15 @@ def config(ctx):
         f"App Name: {settings.app_name}\n"
         f"Data Dir: {settings.data_dir}\n"
         f"Log Level: {settings.log_level}\n\n"
-        f"LLM Provider: {settings.llm.provider}\n"
-        f"LLM Model: {settings.llm.model}\n\n"
-        f"Gateway: {settings.gateway.host}:{settings.gateway.port}\n\n"
+        f"LLM Provider: {settings.llm_provider}\n"
+        f"LLM Model: {settings.llm_model}\n\n"
+        f"Gateway: {settings.gateway_host}:{settings.gateway_port}\n\n"
         f"Channels:\n"
-        f"  Web: {'enabled' if settings.channels.web_enabled else 'disabled'}\n"
-        f"  CLI: {'enabled' if settings.channels.cli_enabled else 'disabled'}\n"
-        f"  Telegram: {'enabled' if settings.channels.telegram_enabled else 'disabled'}\n"
-        f"  Discord: {'enabled' if settings.channels.discord_enabled else 'disabled'}\n"
-        f"  Slack: {'enabled' if settings.channels.slack_enabled else 'disabled'}\n",
+        f"  Web: {'enabled' if settings.channel_web_enabled else 'disabled'}\n"
+        f"  CLI: {'enabled' if settings.channel_cli_enabled else 'disabled'}\n"
+        f"  Telegram: {'enabled' if settings.channel_telegram_enabled else 'disabled'}\n"
+        f"  Discord: {'enabled' if settings.channel_discord_enabled else 'disabled'}\n"
+        f"  Slack: {'enabled' if settings.channel_slack_enabled else 'disabled'}\n",
         title="⚙️ Configuration",
         style="yellow",
     ))

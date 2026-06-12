@@ -64,7 +64,8 @@
       "Bash(python -c \"print\\('test'\\)\")",
       "Bash(echo \"Python failed with exit code $?\")",
       "Bash(powershell *)",
-      "Bash(git commit -m 'Fix syntax error in embeddings.py \\(unterminated string\\) *)"
+      "Bash(git commit -m 'Fix syntax error in embeddings.py \\(unterminated string\\) *)",
+      "Bash(git commit -m 'Fix Pydantic Settings configuration *)"
     ]
   }
 }

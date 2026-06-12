@@ -10,14 +10,14 @@ class MemoryManager:
 
     def __init__(self, config):
         """Initialize memory manager with config."""
-        self.short_term = ShortTermMemory(max_messages=config.short_term_limit)
+        self.short_term = ShortTermMemory(max_messages=config.memory_short_term_limit)
         self.long_term = None
 
-        if config.long_term_enabled:
+        if config.memory_long_term_enabled:
             self.long_term = LongTermMemory(
-                vector_store_type=config.vector_store,
-                vector_store_path=config.vector_store_path,
-                embedding_model=config.embedding_model,
+                vector_store_type=config.memory_vector_store,
+                vector_store_path=config.memory_vector_store_path,
+                embedding_model=config.memory_embedding_model,
             )
 
     async def get_history(self, session_id: str) -> list:
