@@ -4,12 +4,34 @@ from typing import Optional
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain.agents import AgentExecutor, create_openai_tools_agent
 
 from privateclaw.core.memory.manager import MemoryManager
 from privateclaw.core.tools.registry import ToolRegistry
 from privateclaw.core.agent.planner import TaskPlanner, TaskPlan
 from privateclaw.core.agent.executor import TaskExecutor
+
+
+def _create_agent_executor(llm, tools, prompt):
+    """Create agent executor with backward compatibility."""
+    try:
+        # Try new LangChain API first
+        from langchain.agents import AgentExecutor, create_openai_tools_agent
+        agent = create_openai_tools_agent(llm, tools, prompt)
+        return AgentExecutor(
+            agent=agent,
+            tools=tools,
+            verbose=True,
+            handle_parsing_errors=True,
+            max_iterations=10,
+            return_intermediate_steps=True,
+        )
+    except ImportError:
+        # Fallback: Use simple chain without agent executor
+        from langchain_core.runnables import RunnablePassthrough
+        from langchain_core.output_parsers import StrOutputParser
+
+        chain = prompt | llm | StrOutputParser()
+        return SimpleAgentExecutor(chain, tools)
 
 
 SYSTEM_PROMPT = """You are PrivateClaw, a personal AI assistant. You are helpful, harmless, and honest.
@@ -32,6 +54,22 @@ When given a complex task:
 2. Break it down into steps if needed
 3. Execute each step using appropriate tools
 4. Provide clear feedback on progress and results"""
+
+
+class SimpleAgentExecutor:
+    """Simple agent executor fallback when AgentExecutor is not available."""
+
+    def __init__(self, chain, tools):
+        self.chain = chain
+        self.tools = {t.name: t for t in tools} if tools else {}
+
+    async def ainvoke(self, inputs: dict) -> dict:
+        """Invoke the chain."""
+        try:
+            result = await self.chain.ainvoke(inputs)
+            return {"output": result, "intermediate_steps": []}
+        except Exception as e:
+            return {"output": f"Error: {str(e)}", "intermediate_steps": []}
 
 
 class PrivateClawAgent:
@@ -58,25 +96,16 @@ class PrivateClawAgent:
         # Create agent
         self._agent_executor = self._create_agent()
 
-    def _create_agent(self) -> AgentExecutor:
+    def _create_agent(self):
         """Create the LangChain agent executor."""
         prompt = ChatPromptTemplate.from_messages([
             SystemMessage(content=self.system_prompt),
             MessagesPlaceholder(variable_name="chat_history"),
             ("human", "{input}"),
-            MessagesPlaceholder(variable_name="agent_scratchpad"),
+            MessagesPlaceholder(variable_name="agent_scratchpad", optional=True),
         ])
 
-        agent = create_openai_tools_agent(self.llm, self.tools, prompt)
-
-        return AgentExecutor(
-            agent=agent,
-            tools=self.tools,
-            verbose=True,
-            handle_parsing_errors=True,
-            max_iterations=10,
-            return_intermediate_steps=True,
-        )
+        return _create_agent_executor(self.llm, self.tools, prompt)
 
     async def run(self, input_text: str, session_id: str = "default") -> str:
         """Run the agent with input text."""
