@@ -132,16 +132,16 @@ class Gateway:
             web_channel.set_session_manager(self.session_manager)
             self.add_channel(web_channel)
             await web_channel.start()
-
-        # Start web server for API
-        uvicorn_config = uvicorn.Config(
-            self.app,
-            host=self.config.gateway_host,
-            port=self.config.gateway_port,
-            log_level=self.config.log_level.lower(),
-        )
-        server = uvicorn.Server(uvicorn_config)
-        await server.serve()
+        else:
+            # Only start gateway server if web channel is not running
+            uvicorn_config = uvicorn.Config(
+                self.app,
+                host=self.config.gateway_host,
+                port=self.config.gateway_port,
+                log_level=self.config.log_level.lower(),
+            )
+            server = uvicorn.Server(uvicorn_config)
+            await server.serve()
 
     async def stop(self) -> None:
         """Stop the gateway."""
