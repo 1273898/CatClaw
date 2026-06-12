@@ -91,7 +91,8 @@
       "Bash(git stash *)",
       "Bash(curl -s \"https://raw.githubusercontent.com/openclaw/openclaw/main/AGENTS.md\")",
       "Bash(git commit -m '替换所有龙虾图标为新的 P Logo *)",
-      "Bash(git commit -m '添加构建脚本 *)"
+      "Bash(git commit -m '添加构建脚本 *)",
+      "Bash(git commit -m 'Fix batch file encoding issues *)"
     ]
   }
 }

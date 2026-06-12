@@ -1,46 +1,46 @@
 @echo off
 echo ========================================
-echo PrivateClaw 构建脚本
+echo PrivateClaw Build Script
 echo ========================================
 echo.
 
-echo [1/3] 安装前端依赖...
+echo [1/3] Installing frontend dependencies...
 cd frontend
 call npm install
 if errorlevel 1 (
-    echo 前端依赖安装失败!
+    echo Frontend dependency installation failed!
     pause
     exit /b 1
 )
 
 echo.
-echo [2/3] 构建前端...
+echo [2/3] Building frontend...
 call npm run build
 if errorlevel 1 (
-    echo 前端构建失败!
+    echo Frontend build failed!
     pause
     exit /b 1
 )
 
 echo.
-echo [3/3] 复制到后端...
+echo [3/3] Copying to backend...
 cd ..
 if exist privateclaw\channels\web\static\ (
     rmdir /S /Q privateclaw\channels\web\static\
 )
 xcopy /E /I frontend\dist\* privateclaw\channels\web\static\
 if errorlevel 1 (
-    echo 复制失败!
+    echo Copy failed!
     pause
     exit /b 1
 )
 
 echo.
 echo ========================================
-echo 构建完成!
+echo Build complete!
 echo ========================================
 echo.
-echo 现在运行: run.bat serve
-echo 然后访问: http://localhost:8000
+echo Now run: run.bat serve
+echo Then visit: http://localhost:8000
 echo.
 pause
