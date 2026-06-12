@@ -81,7 +81,12 @@
       "Bash(git commit -m 'Fix web channel startup - use await instead of background task *)",
       "Bash(curl -s http://localhost:8000/api/health)",
       "Bash(curl -s http://localhost:8000/)",
-      "Bash(git commit -m '中文化界面 *)"
+      "Bash(git commit -m '中文化界面 *)",
+      "Bash(curl -s \"https://api.github.com/repos/ConardLi/garden-skills\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/ConardLi/garden-skills/main/README.md\")",
+      "Bash(git clone *)",
+      "Bash(curl -s \"https://raw.githubusercontent.com/ConardLi/garden-skills/main/skills/web-design-engineer/SKILL.md\")",
+      "Bash(git commit -m '重新设计界面 - Linear 风格 *)"
     ]
   }
 }
