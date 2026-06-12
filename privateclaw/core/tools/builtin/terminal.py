@@ -2,10 +2,11 @@
 
 import os
 import re
+import subprocess
+import asyncio
 from typing import Type, Optional
 from pathlib import Path
 from pydantic import BaseModel, Field
-from langchain_community.tools import ShellTool
 from privateclaw.core.tools.base import PrivateClawTool
 
 
@@ -81,7 +82,6 @@ class TerminalTool(PrivateClawTool):
     def __init__(self, root_dir: str = ".", **kwargs):
         """Initialize terminal tool with sandbox configuration."""
         super().__init__(root_dir=root_dir, **kwargs)
-        self._shell_tool = ShellTool()
         self._root_dir = Path(root_dir).resolve()
 
     def _validate_command(self, command: str) -> Optional[str]:
@@ -113,17 +113,25 @@ class TerminalTool(PrivateClawTool):
             return error
 
         try:
-            # Set working directory to root_dir
-            original_dir = os.getcwd()
-            os.chdir(self._root_dir)
+            # Execute command in sandbox
+            result = subprocess.run(
+                command,
+                shell=True,
+                capture_output=True,
+                text=True,
+                cwd=str(self._root_dir),
+                timeout=30,
+            )
 
-            # Execute command
-            result = self._shell_tool.run(command)
+            output = result.stdout
+            if result.stderr:
+                output += f"\n[STDERR]\n{result.stderr}"
+            if result.returncode != 0:
+                output += f"\n[Exit code: {result.returncode}]"
 
-            # Restore directory
-            os.chdir(original_dir)
-
-            return result
+            return output
+        except subprocess.TimeoutExpired:
+            return "Error: Command timed out after 30 seconds"
         except Exception as e:
             return f"Error executing command: {str(e)}"
 
@@ -135,17 +143,30 @@ class TerminalTool(PrivateClawTool):
             return error
 
         try:
-            # Set working directory to root_dir
-            original_dir = os.getcwd()
-            os.chdir(self._root_dir)
+            # Execute command asynchronously
+            process = await asyncio.create_subprocess_shell(
+                command,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                cwd=str(self._root_dir),
+            )
 
-            # Execute command
-            result = self._shell_tool.run(command)
+            try:
+                stdout, stderr = await asyncio.wait_for(
+                    process.communicate(), timeout=30
+                )
+            except asyncio.TimeoutError:
+                process.kill()
+                await process.wait()
+                return "Error: Command timed out after 30 seconds"
 
-            # Restore directory
-            os.chdir(original_dir)
+            output = stdout.decode("utf-8", errors="replace")
+            if stderr:
+                output += f"\n[STDERR]\n{stderr.decode('utf-8', errors='replace')}"
+            if process.returncode != 0:
+                output += f"\n[Exit code: {process.returncode}]"
 
-            return result
+            return output
         except Exception as e:
             return f"Error executing command: {str(e)}"
 
