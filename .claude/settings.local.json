@@ -70,7 +70,8 @@
       "Bash(python -c \"from privateclaw.core.tools.builtin.terminal import TerminalTool; print\\('OK'\\)\")",
       "Bash(python -c \"from privateclaw.core.tools.builtin import TerminalTool\")",
       "Bash(git commit -m 'Fix missing Type import in web_search.py *)",
-      "Bash(git commit -m 'Fix ShellTool dependency - use subprocess directly *)"
+      "Bash(git commit -m 'Fix ShellTool dependency - use subprocess directly *)",
+      "Bash(git commit -m 'Fix RequestsGetTool security setting *)"
     ]
   }
 }
