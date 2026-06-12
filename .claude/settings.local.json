@@ -66,7 +66,10 @@
       "Bash(powershell *)",
       "Bash(git commit -m 'Fix syntax error in embeddings.py \\(unterminated string\\) *)",
       "Bash(git commit -m 'Fix Pydantic Settings configuration *)",
-      "Bash(git commit -m 'Fix MemoryManager initialization with flat settings *)"
+      "Bash(git commit -m 'Fix MemoryManager initialization with flat settings *)",
+      "Bash(python -c \"from privateclaw.core.tools.builtin.terminal import TerminalTool; print\\('OK'\\)\")",
+      "Bash(python -c \"from privateclaw.core.tools.builtin import TerminalTool\")",
+      "Bash(git commit -m 'Fix missing Type import in web_search.py *)"
     ]
   }
 }

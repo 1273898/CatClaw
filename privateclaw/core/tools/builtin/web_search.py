@@ -1,6 +1,6 @@
 """Web search tool for PrivateClaw."""
 
-from typing import Optional
+from typing import Optional, Type
 from pydantic import BaseModel, Field
 from privateclaw.core.tools.base import PrivateClawTool
 
