@@ -51,7 +51,8 @@
       "Read(//c/Users/Administrator/.pip/**)",
       "Read(//c/Users/Administrator/.config/pip/**)",
       "Bash(git commit -m 'Add startup scripts and fix build system *)",
-      "Bash(git commit -m 'Add proxy fix scripts and troubleshooting guide *)"
+      "Bash(git commit -m 'Add proxy fix scripts and troubleshooting guide *)",
+      "Bash(git commit -m 'Add DeepSeek API integration *)"
     ]
   }
 }

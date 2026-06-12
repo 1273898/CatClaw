@@ -9,8 +9,8 @@ from pathlib import Path
 class LLMSettings(BaseSettings):
     """LLM configuration."""
 
-    provider: str = Field(default="openai", description="LLM provider (openai, anthropic, ollama)")
-    model: str = Field(default="gpt-4o", description="Model name")
+    provider: str = Field(default="deepseek", description="LLM provider (openai, anthropic, ollama, deepseek)")
+    model: str = Field(default="deepseek-v4-flash", description="Model name")
     temperature: float = Field(default=0.7, description="Temperature for generation")
     max_tokens: Optional[int] = Field(default=None, description="Max tokens for generation")
     api_key: Optional[str] = Field(default=None, description="API key")

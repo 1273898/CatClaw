@@ -44,6 +44,39 @@ class OpenAIProvider(LLMProvider):
         return config.model in self.get_supported_models()
 
 
+class DeepSeekProvider(LLMProvider):
+    """DeepSeek LLM provider (OpenAI-compatible API)."""
+
+    def create_model(self, config: LLMConfig) -> BaseChatModel:
+        from langchain_openai import ChatOpenAI
+
+        kwargs = {
+            "model": config.model,
+            "temperature": config.temperature,
+            "streaming": config.streaming,
+            "timeout": config.timeout,
+            "api_key": config.api_key or "dummy",  # DeepSeek requires an API key
+            "base_url": config.api_base or "https://api.deepseek.com",
+        }
+        if config.max_tokens:
+            kwargs["max_tokens"] = config.max_tokens
+
+        return ChatOpenAI(**kwargs)
+
+    def get_supported_models(self) -> list[str]:
+        return [
+            "deepseek-v4-flash",
+            "deepseek-v4-pro",
+            "deepseek-chat",
+            "deepseek-reasoner",
+        ]
+
+    def validate_config(self, config: LLMConfig) -> bool:
+        if not config.api_key:
+            return False
+        return config.model in self.get_supported_models()
+
+
 class AnthropicProvider(LLMProvider):
     """Anthropic LLM provider."""
 
@@ -116,6 +149,7 @@ class LLMFactory:
         "openai": OpenAIProvider(),
         "anthropic": AnthropicProvider(),
         "ollama": OllamaProvider(),
+        "deepseek": DeepSeekProvider(),
     }
 
     @classmethod
