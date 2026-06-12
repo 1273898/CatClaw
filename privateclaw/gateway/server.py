@@ -102,7 +102,7 @@ class Gateway:
     async def initialize(self) -> None:
         """Initialize gateway components."""
         # Initialize memory
-        self.memory = MemoryManager(self.config.memory)
+        self.memory = MemoryManager(self.config)
 
         # Initialize LLM
         llm = LLMFactory.create_from_settings(self.config)
