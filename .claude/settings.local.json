@@ -73,7 +73,10 @@
       "Bash(git commit -m 'Fix ShellTool dependency - use subprocess directly *)",
       "Bash(git commit -m 'Fix RequestsGetTool security setting *)",
       "Bash(git commit -m 'Fix RequestsGetTool initialization with RequestsWrapper *)",
-      "Bash(git commit -m 'Fix port conflict - only start gateway if web channel disabled *)"
+      "Bash(git commit -m 'Fix port conflict - only start gateway if web channel disabled *)",
+      "Bash(netstat -ano)",
+      "Bash(findstr :8000)",
+      "Bash(git commit -m 'Fix server shutdown - keep running after start *)"
     ]
   }
 }
