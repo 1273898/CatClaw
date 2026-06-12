@@ -1,5 +1,6 @@
 """Gateway server for PrivateClaw."""
 
+import asyncio
 from typing import Optional
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware

@@ -76,7 +76,8 @@
       "Bash(git commit -m 'Fix port conflict - only start gateway if web channel disabled *)",
       "Bash(netstat -ano)",
       "Bash(findstr :8000)",
-      "Bash(git commit -m 'Fix server shutdown - keep running after start *)"
+      "Bash(git commit -m 'Fix server shutdown - keep running after start *)",
+      "Bash(git commit -m 'Add missing asyncio import *)"
     ]
   }
 }
