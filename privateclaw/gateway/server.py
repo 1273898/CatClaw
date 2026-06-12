@@ -15,6 +15,7 @@ from privateclaw.core.tools.registry import ToolRegistry
 from privateclaw.core.session.manager import SessionManager
 from privateclaw.channels.base import BaseChannel
 from privateclaw.channels.web import WebChannel
+from privateclaw.api.prompts import create_prompts_router
 
 
 class Gateway:
@@ -54,6 +55,10 @@ class Gateway:
 
     def _setup_routes(self) -> None:
         """Setup FastAPI routes."""
+
+        # Include prompts router
+        prompts_router = create_prompts_router()
+        self.app.include_router(prompts_router, prefix="/api")
 
         @self.app.get("/")
         async def root():

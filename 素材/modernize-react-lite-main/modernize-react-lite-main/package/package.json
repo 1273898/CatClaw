@@ -1,0 +1,42 @@
+{
+  "name": "modernize-free-react-app-vite",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@iconify/react": "^6.0.0",
+    "@mui/icons-material": "^9.0.1",
+    "@mui/lab": "^9.0.0-beta.3",
+    "@mui/material": "^9.0.1",
+    "@mui/system": "^9.0.1",
+    "@svgr/rollup": "^8.1.0",
+    "@tabler/icons-react": "^3.33.0",
+    "apexcharts": "^4.7.0",
+    "lodash": "^4.17.21",
+    "prop-types": "^15.8.1",
+    "react": "^19.2.6",
+    "react-apexcharts": "^1.7.0",
+    "react-dom": "^19.2.6",
+    "react-helmet": "^6.1.0",
+    "react-mui-sidebar": "^1.6.3",
+    "react-router": "^7.0.2",
+    "simplebar-react": "^3.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.4",
+    "@vitejs/plugin-react": "^4.4.1",
+    "eslint": "^9.27.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "vite": "^6.3.5"
+  }
+}
