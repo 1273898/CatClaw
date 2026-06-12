@@ -45,7 +45,7 @@ class PrivateClawApp {
     }
 
     initEventListeners() {
-        // Send message on Enter
+        // 发送消息 (Enter键)
         this.messageInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -53,41 +53,41 @@ class PrivateClawApp {
             }
         });
 
-        // Auto-resize textarea
+        // 自动调整输入框高度
         this.messageInput.addEventListener('input', () => {
             this.messageInput.style.height = 'auto';
             this.messageInput.style.height = Math.min(this.messageInput.scrollHeight, 200) + 'px';
         });
 
-        // Send button click
+        // 发送按钮点击
         this.sendButton.addEventListener('click', () => this.sendMessage());
 
-        // Toggle sidebar
+        // 切换侧边栏
         document.getElementById('toggleSidebar')?.addEventListener('click', () => {
             this.sidebar.classList.toggle('hidden');
         });
 
-        // Toggle settings
+        // 切换设置面板
         document.getElementById('toggleSettings')?.addEventListener('click', () => {
             this.settingsPanel.classList.toggle('active');
         });
 
-        // Close settings
+        // 关闭设置面板
         document.getElementById('closeSettings')?.addEventListener('click', () => {
             this.settingsPanel.classList.remove('active');
         });
 
-        // New session
+        // 新建会话
         document.getElementById('newSession')?.addEventListener('click', () => {
             this.newSession();
         });
 
-        // Clear chat
+        // 清空聊天
         document.getElementById('clearChat')?.addEventListener('click', () => {
             this.clearChat();
         });
 
-        // Settings form submit
+        // 保存设置
         this.settingsForm?.addEventListener('submit', (e) => {
             e.preventDefault();
             this.saveSettings();
@@ -105,7 +105,7 @@ class PrivateClawApp {
             this.ws = new WebSocket(wsUrl);
 
             this.ws.onopen = () => {
-                console.log('WebSocket connected');
+                console.log('WebSocket 已连接');
                 this.isConnected = true;
                 this.reconnectAttempts = 0;
                 this.updateConnectionStatus('connected');
@@ -116,23 +116,23 @@ class PrivateClawApp {
                     const data = JSON.parse(event.data);
                     this.handleMessage(data);
                 } catch (e) {
-                    console.error('Failed to parse message:', e);
+                    console.error('解析消息失败:', e);
                 }
             };
 
             this.ws.onclose = () => {
-                console.log('WebSocket disconnected');
+                console.log('WebSocket 已断开');
                 this.isConnected = false;
                 this.updateConnectionStatus('disconnected');
                 this.attemptReconnect();
             };
 
             this.ws.onerror = (error) => {
-                console.error('WebSocket error:', error);
+                console.error('WebSocket 错误:', error);
                 this.updateConnectionStatus('disconnected');
             };
         } catch (e) {
-            console.error('Failed to connect WebSocket:', e);
+            console.error('连接 WebSocket 失败:', e);
             this.updateConnectionStatus('disconnected');
             this.attemptReconnect();
         }
@@ -142,14 +142,19 @@ class PrivateClawApp {
         if (this.reconnectAttempts < this.maxReconnectAttempts) {
             this.reconnectAttempts++;
             const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
-            console.log(`Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})`);
+            console.log(`${delay}ms 后重连 (第 ${this.reconnectAttempts} 次尝试)`);
             setTimeout(() => this.connectWebSocket(), delay);
         }
     }
 
     updateConnectionStatus(status) {
         this.statusDot.className = 'status-dot ' + status;
-        this.statusText.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+        const statusTexts = {
+            'connected': '已连接',
+            'disconnected': '已断开',
+            'connecting': '连接中...'
+        };
+        this.statusText.textContent = statusTexts[status] || status;
     }
 
     handleMessage(data) {
@@ -160,17 +165,17 @@ class PrivateClawApp {
                 break;
             case 'error':
                 this.hideTyping();
-                this.addMessage(data.content, 'error');
+                this.addMessage('错误: ' + data.content, 'error');
                 break;
             case 'cleared':
                 this.messages = [];
                 this.renderMessages();
                 break;
             case 'pong':
-                // Keep-alive response
+                // 保活响应
                 break;
             default:
-                console.log('Unknown message type:', data.type);
+                console.log('未知消息类型:', data.type);
         }
     }
 
@@ -208,7 +213,7 @@ class PrivateClawApp {
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP error: ${response.status}`);
+                throw new Error(`HTTP错误: ${response.status}`);
             }
 
             const data = await response.json();
@@ -216,7 +221,7 @@ class PrivateClawApp {
             this.addMessage(data.response, 'assistant');
         } catch (error) {
             this.hideTyping();
-            this.addMessage('Error: ' + error.message, 'error');
+            this.addMessage('错误: ' + error.message, 'error');
         }
     }
 
@@ -284,7 +289,7 @@ class PrivateClawApp {
                 this.renderSessions(data.sessions);
             }
         } catch (e) {
-            console.error('Failed to load sessions:', e);
+            console.error('加载会话失败:', e);
         }
     }
 
@@ -323,7 +328,7 @@ class PrivateClawApp {
                 });
             }
         } catch (e) {
-            console.error('Failed to load session history:', e);
+            console.error('加载会话历史失败:', e);
         }
     }
 
@@ -342,7 +347,7 @@ class PrivateClawApp {
             }
             this.loadSessions();
         } catch (e) {
-            console.error('Failed to delete session:', e);
+            console.error('删除会话失败:', e);
         }
     }
 
@@ -366,7 +371,7 @@ class PrivateClawApp {
                 this.renderTools(data.tools);
             }
         } catch (e) {
-            console.error('Failed to load tools:', e);
+            console.error('加载工具失败:', e);
         }
     }
 
@@ -387,8 +392,8 @@ class PrivateClawApp {
 
     // Settings
     saveSettings() {
-        // TODO: Implement settings save
-        console.log('Settings saved');
+        // TODO: 实现设置保存
+        console.log('设置已保存');
         this.settingsPanel.classList.remove('active');
     }
 }
