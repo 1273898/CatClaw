@@ -201,7 +201,11 @@ class FetchUrlTool(PrivateClawTool):
     def __init__(self, **kwargs):
         """Initialize fetch URL tool."""
         super().__init__(**kwargs)
-        self._requests_tool = RequestsGetTool(allow_dangerous_requests=True)
+        from langchain_community.utilities import RequestsWrapper
+        self._requests_tool = RequestsGetTool(
+            requests_wrapper=RequestsWrapper(),
+            allow_dangerous_requests=True,
+        )
 
     def _run(self, url: str, extract_text: bool = True) -> str:
         """Fetch URL content synchronously."""
