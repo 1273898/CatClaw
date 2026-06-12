@@ -34,7 +34,19 @@
       "Bash(curl -s \"https://api.github.com/repos/openclaw/openclaw/contents/src/channels\")",
       "Bash(git init *)",
       "Bash(git add *)",
-      "Bash(git commit -m 'Initial commit: PrivateClaw v0.1.0 *)"
+      "Bash(git commit -m 'Initial commit: PrivateClaw v0.1.0 *)",
+      "Bash(curl -s \"https://api.github.com/repos/openclaw/openclaw/contents/src/memory\")",
+      "Bash(curl -s \"https://api.github.com/repos/openclaw/openclaw/contents/src/context-engine\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/openclaw/openclaw/main/src/memory/root-memory-files.ts\")",
+      "Bash(curl -s \"https://api.github.com/repos/openclaw/openclaw/contents/src/memory-host-sdk\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/openclaw/openclaw/main/src/memory-host-sdk/query.ts\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/openclaw/openclaw/main/src/memory-host-sdk/dreaming.ts\")",
+      "Bash(curl -s \"https://api.github.com/repos/openclaw/openclaw/contents/packages/memory-host-sdk/src\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/openclaw/openclaw/main/packages/memory-host-sdk/src/query.ts\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/openclaw/openclaw/main/packages/memory-host-sdk/src/engine.ts\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/openclaw/openclaw/main/packages/memory-host-sdk/src/engine-foundation.ts\")",
+      "Bash(curl -s \"https://raw.githubusercontent.com/openclaw/openclaw/main/packages/memory-host-sdk/src/engine-embeddings.ts\")",
+      "Bash(git commit -m 'Add core tools and RAG system *)"
     ]
   }
 }

@@ -63,14 +63,21 @@ class ToolRegistry:
         cls._categories.clear()
 
     @classmethod
-    def load_builtin_tools(cls) -> None:
-        """Load all built-in tools."""
+    def load_builtin_tools(cls, root_dir: str = ".") -> None:
+        """Load all built-in tools.
+
+        Args:
+            root_dir: Root directory for sandboxed tools (terminal, file_reader)
+        """
         from privateclaw.core.tools.builtin import (
             WebSearchTool,
             FileReadTool,
             FileWriteTool,
             ShellTool,
             CalculatorTool,
+            TerminalTool,
+            FetchUrlTool,
+            FileReaderTool,
         )
 
         cls.register(WebSearchTool())
@@ -78,6 +85,9 @@ class ToolRegistry:
         cls.register(FileWriteTool())
         cls.register(ShellTool())
         cls.register(CalculatorTool())
+        cls.register(TerminalTool(root_dir=root_dir))
+        cls.register(FetchUrlTool())
+        cls.register(FileReaderTool(root_dir=root_dir))
 
     @classmethod
     def load_all(cls, config: Optional[dict] = None) -> list:
