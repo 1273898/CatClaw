@@ -5,7 +5,6 @@ from typing import Optional, Callable, Awaitable
 from pathlib import Path
 
 from privateclaw.channels.base import BaseChannel
-from privateclaw.channels.web.app import create_web_app
 from privateclaw.channels.web.websocket import WebSocketManager
 
 
@@ -47,26 +46,18 @@ class WebChannel(BaseChannel):
 
     async def start(self) -> None:
         """Start the web channel."""
+        from privateclaw.channels.web.app import create_web_app
         import uvicorn
+        from fastapi import WebSocket
 
         # Create FastAPI app
         self._app = create_web_app(
             agent=self._agent,
             memory=self._memory,
             session_manager=self._session_manager,
+            ws_manager=self._ws_manager,
             config=self.config,
         )
-
-        # Add WebSocket endpoint
-        @self._app.websocket("/ws")
-        async def websocket_endpoint(websocket: WebSocket, session_id: str = "default"):
-            await self._ws_manager.connect(websocket, session_id)
-            try:
-                while True:
-                    data = await websocket.receive_json()
-                    await self._ws_manager.handle_message(websocket, data)
-            except Exception:
-                self._ws_manager.disconnect(websocket, session_id)
 
         # Start server
         config = uvicorn.Config(
@@ -78,8 +69,8 @@ class WebChannel(BaseChannel):
         self._server = uvicorn.Server(config)
         self._is_running = True
 
-        # Run server in background
-        asyncio.create_task(self._server.serve())
+        # Run server
+        await self._server.serve()
 
     async def stop(self) -> None:
         """Stop the web channel."""

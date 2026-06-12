@@ -133,13 +133,6 @@ class Gateway:
             web_channel.set_session_manager(self.session_manager)
             self.add_channel(web_channel)
             await web_channel.start()
-
-            # Keep the server running
-            try:
-                while True:
-                    await asyncio.sleep(1)
-            except (KeyboardInterrupt, asyncio.CancelledError):
-                await web_channel.stop()
         else:
             # Only start gateway server if web channel is not running
             uvicorn_config = uvicorn.Config(

@@ -77,7 +77,8 @@
       "Bash(netstat -ano)",
       "Bash(findstr :8000)",
       "Bash(git commit -m 'Fix server shutdown - keep running after start *)",
-      "Bash(git commit -m 'Add missing asyncio import *)"
+      "Bash(git commit -m 'Add missing asyncio import *)",
+      "Bash(git commit -m 'Fix web channel startup - use await instead of background task *)"
     ]
   }
 }

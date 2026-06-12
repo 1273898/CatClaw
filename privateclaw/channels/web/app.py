@@ -2,7 +2,7 @@
 
 from typing import Optional
 from pathlib import Path
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,6 +15,7 @@ def create_web_app(
     agent=None,
     memory=None,
     session_manager=None,
+    ws_manager=None,
     config=None,
 ) -> FastAPI:
     """Create the Web application.
@@ -23,6 +24,7 @@ def create_web_app(
         agent: PrivateClaw agent instance
         memory: Memory manager instance
         session_manager: Session manager instance
+        ws_manager: WebSocket manager instance
         config: Configuration object
 
     Returns:
@@ -44,7 +46,8 @@ def create_web_app(
     )
 
     # WebSocket manager
-    ws_manager = WebSocketManager()
+    if ws_manager is None:
+        ws_manager = WebSocketManager()
 
     # API router
     api_router = create_api_router(
@@ -54,6 +57,17 @@ def create_web_app(
         ws_manager=ws_manager,
     )
     app.include_router(api_router, prefix="/api")
+
+    # WebSocket endpoint
+    @app.websocket("/ws")
+    async def websocket_endpoint(websocket: WebSocket, session_id: str = "default"):
+        await ws_manager.connect(websocket, session_id)
+        try:
+            while True:
+                data = await websocket.receive_json()
+                await ws_manager.handle_message(websocket, data)
+        except Exception:
+            ws_manager.disconnect(websocket, session_id)
 
     # Static files
     static_dir = Path(__file__).parent / "static"
