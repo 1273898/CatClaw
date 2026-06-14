@@ -472,27 +472,40 @@ class PrivateClawAgent:
     def _create_tool_from_skill(self, skill) -> Optional[PrivateClawTool]:
         """Create a PrivateClawTool from a ToolSkill."""
         try:
-            # Prepare namespace with required imports
+            # Prepare namespace with all common imports
+            import os
+            import sys
+            import json
+            import subprocess
+            import fnmatch
+            from pathlib import Path
             from pydantic import BaseModel, Field
-            from typing import Type, Optional
+            from typing import Type, Optional, Dict, Any, List
 
             namespace = {
+                # Core
                 'PrivateClawTool': PrivateClawTool,
-                'BaseModel': BaseModel,
-                'Field': Field,
+                '__builtins__': __builtins__,
+                # Standard library
+                'os': os,
+                'sys': sys,
+                'json': json,
+                'subprocess': subprocess,
+                'fnmatch': fnmatch,
+                'Path': Path,
+                # Typing
                 'Type': Type,
                 'Optional': Optional,
-                '__builtins__': __builtins__,
+                'Dict': Dict,
+                'Any': Any,
+                'List': List,
+                # Pydantic
+                'BaseModel': BaseModel,
+                'Field': Field,
             }
 
-            # Remove import statements from skill code (they're already in namespace)
-            code = skill.tool_code
-            code = re.sub(r'^from\s+.*import\s+.*$', '', code, flags=re.MULTILINE)
-            code = re.sub(r'^import\s+.*$', '', code, flags=re.MULTILINE)
-            code = code.strip()
-
-            # Execute the skill code
-            exec(code, namespace)
+            # Execute the skill code directly (imports will use namespace modules)
+            exec(skill.tool_code, namespace)
 
             # Find the tool class
             for obj_name, obj in namespace.items():
