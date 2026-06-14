@@ -9,6 +9,7 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 from privateclaw.core.memory.manager import MemoryManager
 from privateclaw.core.tools.registry import ToolRegistry, get_global_registry
+from privateclaw.core.tools.base import PrivateClawTool
 from privateclaw.core.skills.tool_skill import ToolSkillSystem
 from privateclaw.core.agent.planner import TaskPlanner, TaskPlan
 from privateclaw.core.agent.executor import TaskExecutor
