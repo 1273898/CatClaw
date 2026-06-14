@@ -113,16 +113,24 @@ class Gateway:
 
             # Add QQ channel if enabled
             if self.config.channel_qq_enabled:
-                from privateclaw.channels.qq import QQChannel
-                qq_channel = QQChannel({
-                    "bot_id": self.config.channel_qq_bot_id,
-                    "bot_secret": self.config.channel_qq_bot_secret,
-                    "sandbox": self.config.channel_qq_sandbox,
-                })
-                self.add_channel(qq_channel)
+                print(f"[Gateway] Initializing QQ channel...")
+                print(f"[Gateway] Bot ID: {self.config.channel_qq_bot_id}")
+                try:
+                    from privateclaw.channels.qq import QQChannel
+                    qq_channel = QQChannel({
+                        "bot_id": self.config.channel_qq_bot_id,
+                        "bot_secret": self.config.channel_qq_bot_secret,
+                        "sandbox": self.config.channel_qq_sandbox,
+                    })
+                    self.add_channel(qq_channel)
 
-                # Add webhook endpoint to web app
-                web_channel.add_webhook("/webhook/qq", qq_channel.handle_webhook)
+                    # Add webhook endpoint to web app
+                    web_channel.add_webhook("/webhook/qq", qq_channel.handle_webhook)
+                    print(f"[Gateway] ✅ QQ channel initialized successfully")
+                except Exception as e:
+                    print(f"[Gateway] ❌ Failed to initialize QQ channel: {e}")
+                    import traceback
+                    traceback.print_exc()
 
             # Add Feishu channel if enabled
             if self.config.channel_feishu_enabled:
