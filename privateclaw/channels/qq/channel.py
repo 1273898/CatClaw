@@ -184,6 +184,7 @@ class QQChannel(BaseChannel):
             user_openid = author.get("user_openid", "")
 
             logging.info(f"[QQ] C2C message from {user_openid}: {content[:100]}")
+            logging.info(f"[QQ] Message ID: {msg_id}")
 
             # Store message
             await self._store_message({
@@ -282,21 +283,22 @@ class QQChannel(BaseChannel):
         Args:
             target: User openid or group openid
             message: Message content
-            **kwargs: Additional options (msg_type, group_openid, etc.)
+            **kwargs: Additional options (msg_type, group_openid, msg_id, etc.)
 
         Returns:
             True if successful
         """
         try:
             msg_type = kwargs.get("msg_type", "c2c")
+            msg_id = kwargs.get("msg_id")
 
             if msg_type == "group":
                 # Send to group
                 group_openid = kwargs.get("group_openid", target)
-                result = await self._send_group_message(group_openid, message)
+                result = await self._send_group_message(group_openid, message, msg_id)
             else:
                 # Send direct message
-                result = await self._send_c2c_message(target, message)
+                result = await self._send_c2c_message(target, message, msg_id)
 
             return result
 
@@ -304,19 +306,19 @@ class QQChannel(BaseChannel):
             logging.error(f"[QQ] Send message error: {e}")
             return False
 
-    async def _send_c2c_message(self, user_openid: str, content: str) -> bool:
+    async def _send_c2c_message(self, user_openid: str, content: str, msg_id: str = None) -> bool:
         """Send direct message to user.
 
         Args:
             user_openid: User's openid
             content: Message content
+            msg_id: Original message ID for reply
 
         Returns:
             True if successful
         """
         try:
             import aiohttp
-            import time
 
             # Get access token
             token = await self._get_access_token()
@@ -328,8 +330,11 @@ class QQChannel(BaseChannel):
             payload = {
                 "content": content,
                 "msg_type": 0,  # Text message
-                "msg_id": "0",  # Will be filled by QQ server
             }
+
+            # Add msg_id if provided (for reply)
+            if msg_id:
+                payload["msg_id"] = msg_id
 
             headers = {
                 "Authorization": f"QQBot {token}",
@@ -350,12 +355,13 @@ class QQChannel(BaseChannel):
             logging.error(f"[QQ] Send C2C message error: {e}")
             return False
 
-    async def _send_group_message(self, group_openid: str, content: str) -> bool:
+    async def _send_group_message(self, group_openid: str, content: str, msg_id: str = None) -> bool:
         """Send message to group.
 
         Args:
             group_openid: Group's openid
             content: Message content
+            msg_id: Original message ID for reply
 
         Returns:
             True if successful
@@ -373,8 +379,11 @@ class QQChannel(BaseChannel):
             payload = {
                 "content": content,
                 "msg_type": 0,  # Text message
-                "msg_id": "0",  # Will be filled by QQ server
             }
+
+            # Add msg_id if provided (for reply)
+            if msg_id:
+                payload["msg_id"] = msg_id
 
             headers = {
                 "Authorization": f"QQBot {token}",
