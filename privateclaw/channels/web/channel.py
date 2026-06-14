@@ -118,14 +118,18 @@ class WebChannel(BaseChannel):
 
         # Webhook endpoints
         for path, handler in self._webhooks.items():
-            @app.post(path)
-            async def webhook_endpoint(request_data: dict, _handler=handler):
-                """Handle webhook request."""
-                try:
-                    result = await _handler(request_data)
-                    return result
-                except Exception as e:
-                    return {"code": -1, "message": str(e)}
+            # Use a factory function to properly capture handler reference
+            def create_webhook_endpoint(h):
+                async def webhook_endpoint(request_data: dict):
+                    """Handle webhook request."""
+                    try:
+                        result = await h(request_data)
+                        return result
+                    except Exception as e:
+                        return {"code": -1, "message": str(e)}
+                return webhook_endpoint
+
+            app.post(path)(create_webhook_endpoint(handler))
 
         # Static files
         static_dir = Path(__file__).parent / "static"
