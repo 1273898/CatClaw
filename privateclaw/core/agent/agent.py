@@ -473,17 +473,26 @@ class PrivateClawAgent:
         """Create a PrivateClawTool from a ToolSkill."""
         try:
             # Prepare namespace with required imports
+            from pydantic import BaseModel, Field
+            from typing import Type, Optional
+
             namespace = {
                 'PrivateClawTool': PrivateClawTool,
+                'BaseModel': BaseModel,
+                'Field': Field,
+                'Type': Type,
+                'Optional': Optional,
                 '__builtins__': __builtins__,
             }
 
-            # Add common imports that skills might need
-            exec("from typing import Type, Optional", namespace)
-            exec("from pydantic import BaseModel, Field", namespace)
+            # Remove import statements from skill code (they're already in namespace)
+            code = skill.tool_code
+            code = re.sub(r'^from\s+.*import\s+.*$', '', code, flags=re.MULTILINE)
+            code = re.sub(r'^import\s+.*$', '', code, flags=re.MULTILINE)
+            code = code.strip()
 
             # Execute the skill code
-            exec(skill.tool_code, namespace)
+            exec(code, namespace)
 
             # Find the tool class
             for obj_name, obj in namespace.items():
