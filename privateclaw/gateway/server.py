@@ -85,17 +85,22 @@ class Gateway:
         channel.on_message(self._handle_channel_message)
         self.channels[channel.name] = channel
 
-    async def _handle_channel_message(self, channel_name: str, sender: str, message: str) -> None:
+    async def _handle_channel_message(self, channel_name: str, sender: str, message: str, **kwargs) -> None:
         """Handle message from a channel and route response."""
         if not self.agent:
             return
 
+        metadata = kwargs.get("metadata", {})
         session_id = f"{channel_name}:{sender}"
         response = await self.agent.run(message, session_id)
 
         # Send response back through the originating channel
         if channel_name in self.channels:
-            await self.channels[channel_name].send_message(sender, response)
+            await self.channels[channel_name].send_message(
+                sender,
+                response,
+                **metadata
+            )
 
     async def start(self) -> None:
         """Start the gateway and all channels."""
