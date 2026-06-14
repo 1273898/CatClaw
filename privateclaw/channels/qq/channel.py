@@ -316,6 +316,7 @@ class QQChannel(BaseChannel):
         """
         try:
             import aiohttp
+            import time
 
             # Get access token
             token = await self._get_access_token()
@@ -409,12 +410,11 @@ class QQChannel(BaseChannel):
                 return self._access_token
 
             # Request new token
-            url = f"{self._api_base}/oauth2/token"
+            url = "https://bots.qq.com/app/getAppAccessToken"
 
             payload = {
-                "grant_type": "client_credentials",
-                "client_id": self.bot_id,
-                "client_secret": self.bot_secret,
+                "appId": self.bot_id,
+                "clientSecret": self.bot_secret,
             }
 
             async with aiohttp.ClientSession() as session:
@@ -422,7 +422,7 @@ class QQChannel(BaseChannel):
                     if resp.status == 200:
                         data = await resp.json()
                         self._access_token = data.get("access_token")
-                        expires_in = data.get("expires_in", 7200)
+                        expires_in = int(data.get("expires_in", 7200))
                         self._token_expires_at = time.time() + expires_in - 300  # 5 min buffer
 
                         logging.info(f"[QQ] Access token refreshed, expires in {expires_in}s")
