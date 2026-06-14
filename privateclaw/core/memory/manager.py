@@ -55,6 +55,21 @@ class MemoryManager:
         # Trigger memory consolidation check
         await self.consolidation.add_message(session_id, user_id, role, content)
 
+    async def store_conversation(self, session_id: str, user_message: str = None, assistant_message: str = None, channel: str = "web", sender: str = "default") -> None:
+        """Store a conversation message with channel information.
+
+        Args:
+            session_id: Session identifier
+            user_message: User's message (if any)
+            assistant_message: Assistant's response (if any)
+            channel: Channel name (web, qq, feishu, etc.)
+            sender: Sender identifier
+        """
+        if user_message:
+            await self.add_message(session_id, "human", user_message, user_id=sender)
+        if assistant_message:
+            await self.add_message(session_id, "assistant", assistant_message, user_id=sender)
+
     async def search_memory(self, query: str, k: int = 5) -> list:
         """Search long-term memory for relevant information."""
         if not self.long_term:

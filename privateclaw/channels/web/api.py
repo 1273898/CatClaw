@@ -141,6 +141,11 @@ def create_api_router(
                     if history:
                         last_message = history[-1].get("content", "")[:100]
 
+                # Determine channel from session_id
+                channel = "web"
+                if ":" in session_id:
+                    channel = session_id.split(":")[0]
+
                 session_list.append({
                     "session_id": session.session_id,
                     "created_at": session.created_at.isoformat(),
@@ -148,6 +153,7 @@ def create_api_router(
                     "message_count": message_count,
                     "last_message": last_message,
                     "is_active": session.is_active(),
+                    "channel": channel,
                 })
 
         return {"sessions": session_list}

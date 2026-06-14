@@ -120,7 +120,8 @@
       "Bash(git push *)",
       "Bash(git commit -m 'fix: 修复Gateway消息处理metadata参数支持 *)",
       "Bash(git commit -m 'fix: 修复QQ机器人access token获取端点 *)",
-      "Bash(git commit -m 'fix: 修复QQ消息发送msg_id参数 *)"
+      "Bash(git commit -m 'fix: 修复QQ消息发送msg_id参数 *)",
+      "Bash(git commit -m 'feat: 支持QQ消息在网页端查看 *)"
     ]
   }
 }
