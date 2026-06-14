@@ -99,6 +99,13 @@ class Gateway:
 
     async def start(self) -> None:
         """Start the gateway and all channels."""
+        # Debug: print channel config
+        print(f"[Gateway] Channel config:")
+        print(f"  - web_enabled: {self.config.channel_web_enabled}")
+        print(f"  - qq_enabled: {self.config.channel_qq_enabled}")
+        print(f"  - qq_bot_id: {self.config.channel_qq_bot_id}")
+        print(f"  - feishu_enabled: {self.config.channel_feishu_enabled}")
+
         # Initialize components
         await self.initialize()
 
