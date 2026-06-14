@@ -1,32 +1,59 @@
-"""Memory manager for PrivateClaw."""
+"""Memory manager for CatClaw."""
 
 from typing import Optional
 from privateclaw.core.memory.short_term import ShortTermMemory
 from privateclaw.core.memory.long_term import LongTermMemory
+from privateclaw.core.memory.consolidation import MemoryConsolidation, ConsolidationConfig
 
 
 class MemoryManager:
-    """Multi-layer memory manager for PrivateClaw."""
+    """Multi-layer memory manager for CatClaw."""
 
     def __init__(self, config):
         """Initialize memory manager with config."""
-        self.short_term = ShortTermMemory(max_messages=config.memory_short_term_limit)
+        self.short_term = ShortTermMemory(
+            max_messages=config.memory_short_term_limit,
+            storage_path=str(config.get_data_path() / "conversations")
+        )
         self.long_term = None
 
         if config.memory_long_term_enabled:
             self.long_term = LongTermMemory(
                 vector_store_type=config.memory_vector_store,
-                vector_store_path=config.memory_vector_store_path,
+                vector_store_path=str(config.get_vector_store_path()),
                 embedding_model=config.memory_embedding_model,
             )
+
+        # Initialize memory consolidation
+        self.consolidation = MemoryConsolidation(
+            memory_manager=self,
+            config=ConsolidationConfig(enabled=True)
+        )
 
     async def get_history(self, session_id: str) -> list:
         """Get conversation history for a session."""
         return await self.short_term.get_history(session_id)
 
-    async def add_message(self, session_id: str, role: str, content: str) -> None:
-        """Add a message to conversation history."""
+    async def add_message(self, session_id: str, role: str, content: str, user_id: str = "default") -> None:
+        """Add a message to conversation history and store in long-term memory."""
+        # Add to short-term memory (conversation history)
         await self.short_term.add_message(session_id, role, content)
+
+        # Store important content in long-term memory
+        if self.long_term and role == "human":
+            # Store user messages for context retrieval
+            await self.long_term.store(
+                content,
+                metadata={
+                    "session_id": session_id,
+                    "user_id": user_id,
+                    "role": role,
+                    "type": "user_message",
+                }
+            )
+
+        # Trigger memory consolidation check
+        await self.consolidation.add_message(session_id, user_id, role, content)
 
     async def search_memory(self, query: str, k: int = 5) -> list:
         """Search long-term memory for relevant information."""

@@ -41,3 +41,5 @@ PyYAML>=6.0.0
 
 # Optional: Slack
 # slack-bolt>=1.18.0
+psutil>=5.9.0
+pyyaml>=6.0

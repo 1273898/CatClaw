@@ -123,11 +123,8 @@ class MemoryDreaming:
         """
         self._last_light_dream = datetime.now()
 
-        # Get recent memories
-        results = self.rag_engine.search(
-            "*",  # Search all
-            k=self.config.light_limit,
-        )
+        # Get all memories using get_all instead of wildcard search
+        results = self.rag_engine.get_all(limit=self.config.light_limit)
 
         # Deduplication
         unique_results = []
@@ -157,11 +154,8 @@ class MemoryDreaming:
         """
         self._last_deep_dream = datetime.now()
 
-        # Get memories
-        results = self.rag_engine.search(
-            "*",  # Search all
-            k=self.config.deep_limit,
-        )
+        # Get memories using get_all
+        results = self.rag_engine.get_all(limit=self.config.deep_limit)
 
         # Quality assessment
         high_quality = []
@@ -196,11 +190,8 @@ class MemoryDreaming:
         """
         self._last_rem_dream = datetime.now()
 
-        # Get memories
-        results = self.rag_engine.search(
-            "*",  # Search all
-            k=self.config.rem_limit,
-        )
+        # Get memories using get_all
+        results = self.rag_engine.get_all(limit=self.config.rem_limit)
 
         # Pattern recognition (simplified)
         patterns = self._identify_patterns(results)

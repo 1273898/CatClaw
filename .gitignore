@@ -66,3 +66,18 @@ htmlcov/
 # Distribution
 *.tar.gz
 *.whl
+
+# Frontend
+node_modules/
+frontend/dist/
+frontend/.vite/
+*.local
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Cache
+.cache/
+.ruff_cache/

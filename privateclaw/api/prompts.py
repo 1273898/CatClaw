@@ -5,6 +5,9 @@ from pathlib import Path
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
+# Project root directory
+PROJECT_ROOT = Path(__file__).parent.parent.parent.resolve()
+
 
 class PromptDocument(BaseModel):
     """Prompt document model."""
@@ -23,7 +26,7 @@ def create_prompts_router(prompts_dir: str = "prompts") -> APIRouter:
     """Create API router for prompt documents."""
     router = APIRouter(prefix="/prompts", tags=["prompts"])
 
-    prompts_path = Path(prompts_dir)
+    prompts_path = (PROJECT_ROOT / prompts_dir).resolve()
 
     @router.get("/")
     async def list_prompts():

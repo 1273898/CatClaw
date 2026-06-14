@@ -93,7 +93,28 @@
       "Bash(git commit -m '替换所有龙虾图标为新的 P Logo *)",
       "Bash(git commit -m '添加构建脚本 *)",
       "Bash(git commit -m 'Fix batch file encoding issues *)",
-      "Bash(git commit -m 'Add npm mirror for faster installation *)"
+      "Bash(git commit -m 'Add npm mirror for faster installation *)",
+      "Bash(npm ls *)",
+      "Bash(npm install *)",
+      "Bash(xargs grep -l \"PrivateClaw\")",
+      "Bash(python -m py_compile privateclaw/core/self_improvement.py)",
+      "Bash(python -c \"import py_compile; py_compile.compile\\('privateclaw/core/self_improvement.py', doraise=True\\)\")",
+      "Bash(python -c \"print\\('hello'\\)\")",
+      "Bash(C:/Users/Administrator/AppData/Local/Microsoft/WindowsApps/python.exe *)",
+      "Bash(pip install *)",
+      "Bash(python -m pip install sentence-transformers)",
+      "Bash(python -m pip install sentence-transformers langchain-huggingface langchain-chroma)",
+      "Bash(where pip *)",
+      "Bash(where pip3 *)",
+      "Bash(dir E:\\\\PrivateClaw\\\\.venv)",
+      "Bash(dir E:\\\\PrivateClaw\\\\venv)",
+      "Bash(conda --version)",
+      "Bash(conda env *)",
+      "Bash(cmd.exe *)",
+      "Bash(powershell.exe *)",
+      "Bash(npm run *)",
+      "Bash(python -m pytest tests/ -v --tb=short)",
+      "Bash(curl *)"
     ]
   }
 }

@@ -213,4 +213,4 @@ await memory.consolidate(session_id="web_xxx")
 
 ---
 
-*这份文档描述了 PrivateClaw 的记忆系统架构和使用方法*
+*这份文档描述了 CatClaw 的记忆系统架构和使用方法*

@@ -19,20 +19,22 @@ console = Console()
 
 def create_agent(settings: Settings) -> PrivateClawAgent:
     """Create agent from settings."""
-    # Initialize memory
-    memory = MemoryManager(settings.memory)
+    # Initialize memory - pass settings object directly
+    memory = MemoryManager(settings)
 
     # Initialize LLM
     llm = LLMFactory.create_from_settings(settings)
 
-    # Load tools
-    tools = ToolRegistry.load_all()
+    # Load tools - create registry instance
+    registry = ToolRegistry()
+    tools = registry.load_all()
 
     # Create agent
     return PrivateClawAgent(
         llm=llm,
         memory=memory,
         tools=tools,
+        tool_registry=registry,
     )
 
 
@@ -40,7 +42,7 @@ def create_agent(settings: Settings) -> PrivateClawAgent:
 @click.option("--config", "-c", help="Path to config file")
 @click.pass_context
 def cli(ctx, config):
-    """PrivateClaw - Your private AI assistant."""
+    """CatClaw - Your private AI assistant."""
     ctx.ensure_object(dict)
     ctx.obj["settings"] = get_settings()
 
@@ -60,8 +62,8 @@ def serve(ctx, host, port):
     gateway = Gateway(settings)
 
     console.print(Panel(
-        f"Starting PrivateClaw Gateway on {host}:{port}",
-        title="🚀 PrivateClaw",
+        f"Starting CatClaw Gateway on {host}:{port}",
+        title="🚀 CatClaw",
         style="green",
     ))
 
@@ -76,8 +78,8 @@ def chat(ctx, session):
     settings = ctx.obj["settings"]
 
     console.print(Panel(
-        "Welcome to PrivateClaw! Type 'exit' or 'quit' to end the session.",
-        title="PrivateClaw Chat",
+        "Welcome to CatClaw! Type 'exit' or 'quit' to end the session.",
+        title="CatClaw Chat",
         style="blue",
     ))
 
@@ -104,7 +106,7 @@ def chat(ctx, session):
                 # Display response
                 console.print(Panel(
                     response,
-                    title="🤖 PrivateClaw",
+                    title="🤖 CatClaw",
                     style="cyan",
                 ))
 
@@ -150,12 +152,13 @@ def models(ctx):
 @click.pass_context
 def tools(ctx):
     """List available tools."""
-    ToolRegistry.load_builtin_tools()
+    registry = ToolRegistry()
+    registry.load_builtin_tools()
 
-    categories = ToolRegistry.get_categories()
+    categories = registry.get_categories()
     for category in categories:
         console.print(f"\n[bold]{category}:[/bold]")
-        tool_list = ToolRegistry.get_by_category(category)
+        tool_list = registry.get_by_category(category)
         for tool in tool_list:
             console.print(f"  - {tool.name}: {tool.description}")
 

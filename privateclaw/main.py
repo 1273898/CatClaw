@@ -19,7 +19,7 @@ def main() -> None:
     try:
         asyncio.run(run_gateway(settings))
     except KeyboardInterrupt:
-        print("\nShutting down PrivateClaw...")
+        print("\nShutting down CatClaw...")
         sys.exit(0)
 
 

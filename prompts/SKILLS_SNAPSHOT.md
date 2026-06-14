@@ -268,5 +268,5 @@ async def test_workflow():
 
 ---
 
-*这份文档记录了 PrivateClaw 当前可用的技能*
+*这份文档记录了 CatClaw 当前可用的技能*
 *最后更新: 2026-06-12*

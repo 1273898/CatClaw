@@ -206,6 +206,52 @@ class RAGEngine:
             score_threshold=score_threshold or self.config.score_threshold,
         )
 
+    def get_all(self, limit: Optional[int] = None) -> list[SearchResult]:
+        """Get all documents from the vector store.
+
+        Args:
+            limit: Maximum number of results to return
+
+        Returns:
+            List of search results (without relevance scores)
+        """
+        vector_store = self._get_vector_store()
+
+        # Get all documents from the collection
+        try:
+            # ChromaDB specific: get all documents
+            if hasattr(vector_store, '_collection'):
+                collection = vector_store._collection
+                result = collection.get(
+                    limit=limit,
+                    include=["documents", "metadatas"]
+                )
+
+                documents = result.get("documents", [])
+                metadatas = result.get("metadatas", [])
+                ids = result.get("ids", [])
+
+                # Convert to SearchResult format
+                from privateclaw.core.rag.retriever import SearchResult
+                results = []
+                for i, (doc, metadata, doc_id) in enumerate(zip(documents, metadatas, ids)):
+                    results.append(SearchResult(
+                        content=doc,
+                        metadata=metadata or {},
+                        score=1.0,  # No relevance score for get_all
+                        id=doc_id,
+                    ))
+                return results
+        except Exception as e:
+            print(f"Error getting all documents: {e}")
+
+        # Fallback: use a generic query
+        return self.search(
+            query="all documents memories information",
+            k=limit or 100,
+            score_threshold=0.0,
+        )
+
     def get_context(self, query: str, max_tokens: int = 4000) -> str:
         """Get relevant context for a query.
 

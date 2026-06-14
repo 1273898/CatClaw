@@ -1,4 +1,4 @@
-# AGENTS.md - PrivateClaw Agent 系统
+# AGENTS.md - CatClaw Agent 系统
 
 ## Agent 架构
 
@@ -6,7 +6,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    PrivateClaw Agent                     │
+│                    CatClaw Agent                     │
 ├─────────────────────────────────────────────────────────┤
 │  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐   │
 │  │ 规划器  │  │ 执行器  │  │ 记忆    │  │ 工具    │   │
@@ -166,4 +166,4 @@ def check_tool_safety(tool_name, params):
 
 ---
 
-*这份文档定义了 PrivateClaw Agent 的核心架构和行为规范*
+*这份文档定义了 CatClaw Agent 的核心架构和行为规范*

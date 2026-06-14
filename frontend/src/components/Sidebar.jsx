@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Box,
   List,
@@ -18,18 +18,44 @@ import {
   IconFileText,
   IconSettings,
   IconPlus,
+  IconStar,
+  IconPlug,
 } from '@tabler/icons-react'
 
 const menuItems = [
   { id: 'chat', label: '聊天', icon: IconMessage },
   { id: 'sessions', label: '会话', icon: IconList },
+  { id: 'skills', label: 'SKILLS', icon: IconStar },
+  { id: 'channels', label: '渠道', icon: IconPlug },
   { id: 'tools', label: '工具', icon: IconTool },
   { id: 'memory', label: '记忆', icon: IconBrain },
   { id: 'prompts', label: '提示词', icon: IconFileText },
   { id: 'settings', label: '设置', icon: IconSettings },
 ]
 
-function Sidebar({ currentPage, onNavigate }) {
+// 猫咪图标列表
+const catIcons = [
+  '/cats/波斯猫.svg',
+  '/cats/黑猫.svg',
+  '/cats/狸花猫.svg',
+  '/cats/缅因猫.svg',
+  '/cats/田园猫.svg',
+  '/cats/暹罗猫.svg',
+]
+
+function Sidebar({ currentPage, onNavigate, onNewChat }) {
+  const [currentCat, setCurrentCat] = useState(() => {
+    // 随机选择一个猫咪图标
+    const randomIndex = Math.floor(Math.random() * catIcons.length)
+    return catIcons[randomIndex]
+  })
+
+  // 当页面导航时更换猫咪图标
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * catIcons.length)
+    setCurrentCat(catIcons[randomIndex])
+  }, [currentPage])
+
   return (
     <Box
       sx={{
@@ -44,22 +70,18 @@ function Sidebar({ currentPage, onNavigate }) {
       {/* Logo */}
       <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
         <Box
+          component="img"
+          src={currentCat}
+          alt="CatClaw"
           sx={{
             width: 32,
             height: 32,
-            borderRadius: 2,
-            bgcolor: 'primary.main',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            borderRadius: 1,
+            objectFit: 'contain',
           }}
-        >
-          <Typography variant="h6" sx={{ color: 'white', fontWeight: 700 }}>
-            P
-          </Typography>
-        </Box>
+        />
         <Typography variant="h6" sx={{ fontWeight: 600 }}>
-          PrivateClaw
+          CatClaw
         </Typography>
       </Box>
 
@@ -75,7 +97,13 @@ function Sidebar({ currentPage, onNavigate }) {
             borderRadius: 2,
             mb: 1,
           }}
-          onClick={() => onNavigate('chat')}
+          onClick={() => {
+            if (onNewChat) {
+              onNewChat()
+            } else {
+              onNavigate('chat')
+            }
+          }}
         >
           <IconPlus size={18} />
           <Typography variant="body2" sx={{ ml: 1 }}>

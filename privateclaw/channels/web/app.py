@@ -1,5 +1,6 @@
 """Web application for PrivateClaw."""
 
+import logging
 from typing import Optional
 from pathlib import Path
 from fastapi import FastAPI, WebSocket
@@ -9,6 +10,28 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from privateclaw.channels.web.api import create_api_router
 from privateclaw.channels.web.websocket import WebSocketManager
+from privateclaw.api.prompts import create_prompts_router
+from privateclaw.config.settings import get_settings
+
+
+class EndpointFilter(logging.Filter):
+    """Filter out specific endpoint logs."""
+
+    def __init__(self, paths: list[str]):
+        super().__init__()
+        self.paths = paths
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        if record.args and len(record.args) >= 3:
+            path = record.args[2] if len(record.args) > 2 else ""
+            for p in self.paths:
+                if p in str(path):
+                    return False
+        return True
+
+
+# Filter out /pet and /cats static file logs
+logging.getLogger("uvicorn.access").addFilter(EndpointFilter(["/pet", "/cats"]))
 
 
 def create_web_app(
@@ -30,19 +53,22 @@ def create_web_app(
     Returns:
         FastAPI application
     """
+    # Get settings for CORS configuration
+    settings = get_settings()
+
     app = FastAPI(
-        title="PrivateClaw",
+        title="CatClaw",
         description="Your private AI assistant",
         version="0.1.0",
     )
 
-    # CORS middleware
+    # CORS middleware - use configured origins instead of wildcard
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_origins=settings.cors_origins,
+        allow_credentials=settings.cors_allow_credentials,
+        allow_methods=settings.cors_allow_methods,
+        allow_headers=settings.cors_allow_headers,
     )
 
     # WebSocket manager
@@ -58,6 +84,10 @@ def create_web_app(
     )
     app.include_router(api_router, prefix="/api")
 
+    # Prompts router
+    prompts_router = create_prompts_router()
+    app.include_router(prompts_router, prefix="/api")
+
     # WebSocket endpoint
     @app.websocket("/ws")
     async def websocket_endpoint(websocket: WebSocket, session_id: str = "default"):
@@ -69,10 +99,20 @@ def create_web_app(
         except Exception:
             ws_manager.disconnect(websocket, session_id)
 
-    # Static files
+    # Static files - mount at root for assets
     static_dir = Path(__file__).parent / "static"
     if static_dir.exists():
-        app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+        app.mount("/assets", StaticFiles(directory=str(static_dir / "assets")), name="assets")
+        app.mount("/cats", StaticFiles(directory=str(static_dir / "cats")), name="cats")
+        app.mount("/pet", StaticFiles(directory=str(static_dir / "pet")), name="pet")
+        # Serve vite.svg
+        @app.get("/vite.svg")
+        async def serve_vite_svg():
+            svg_path = static_dir / "vite.svg"
+            if svg_path.exists():
+                from fastapi.responses import FileResponse
+                return FileResponse(str(svg_path), media_type="image/svg+xml")
+            return {"error": "Not found"}
 
     # Serve index.html at root
     @app.get("/", response_class=HTMLResponse)
@@ -93,7 +133,7 @@ def _get_default_index() -> str:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PrivateClaw</title>
+    <title>CatClaw</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -206,12 +246,12 @@ def _get_default_index() -> str:
 </head>
 <body>
     <div class="header">
-        <h1>PrivateClaw</h1>
+        <h1>CatClaw</h1>
         <span>Your Private AI Assistant</span>
     </div>
     <div class="chat-container" id="chatContainer">
         <div class="message assistant">
-            Hello! I'm PrivateClaw, your private AI assistant. How can I help you today?
+            Hello! I'm CatClaw, your private AI assistant. How can I help you today?
         </div>
     </div>
     <div class="typing-indicator" id="typingIndicator">
@@ -236,7 +276,7 @@ def _get_default_index() -> str:
             ws = new WebSocket(`${protocol}//${window.location.host}/ws?session_id=${sessionId}`);
 
             ws.onopen = () => {
-                console.log('Connected to PrivateClaw');
+                console.log('Connected to CatClaw');
             };
 
             ws.onmessage = (event) => {
@@ -251,7 +291,7 @@ def _get_default_index() -> str:
             };
 
             ws.onclose = () => {
-                console.log('Disconnected from PrivateClaw');
+                console.log('Disconnected from CatClaw');
                 setTimeout(connectWebSocket, 3000);
             };
 

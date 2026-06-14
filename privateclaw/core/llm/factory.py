@@ -50,12 +50,13 @@ class DeepSeekProvider(LLMProvider):
     def create_model(self, config: LLMConfig) -> BaseChatModel:
         from langchain_openai import ChatOpenAI
 
+        # Pass API key directly to ChatOpenAI, don't modify global environment
         kwargs = {
             "model": config.model,
             "temperature": config.temperature,
             "streaming": config.streaming,
             "timeout": config.timeout,
-            "api_key": config.api_key or "dummy",  # DeepSeek requires an API key
+            "api_key": config.api_key or "dummy",
             "base_url": config.api_base or "https://api.deepseek.com",
         }
         if config.max_tokens:
