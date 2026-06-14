@@ -472,8 +472,17 @@ class PrivateClawAgent:
     def _create_tool_from_skill(self, skill) -> Optional[PrivateClawTool]:
         """Create a PrivateClawTool from a ToolSkill."""
         try:
-            # Execute the skill code to get the tool class
-            namespace = {}
+            # Prepare namespace with required imports
+            namespace = {
+                'PrivateClawTool': PrivateClawTool,
+                '__builtins__': __builtins__,
+            }
+
+            # Add common imports that skills might need
+            exec("from typing import Type, Optional", namespace)
+            exec("from pydantic import BaseModel, Field", namespace)
+
+            # Execute the skill code
             exec(skill.tool_code, namespace)
 
             # Find the tool class
