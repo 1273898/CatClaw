@@ -114,7 +114,10 @@
       "Bash(powershell.exe *)",
       "Bash(npm run *)",
       "Bash(python -m pytest tests/ -v --tb=short)",
-      "Bash(curl *)"
+      "Bash(curl *)",
+      "WebFetch(domain:bot.q.qq.com)",
+      "Bash(git commit -m 'feat: 添加QQ webhook ed25519签名验证支持 *)",
+      "Bash(git push *)"
     ]
   }
 }

@@ -1,28 +1,21 @@
-"""QQ Channel implementation for CatClaw.
-
-Supports:
-- QQ Official Bot API (QQ开放平台)
-- Message receiving via webhook
-- Message sending via API
-"""
+"""QQ Bot channel for PrivateClaw."""
 
 import asyncio
-import hashlib
 import json
-from typing import Optional, Callable, Awaitable
+import logging
+import hashlib
+import hmac
+from typing import Optional, Callable, Awaitable, Dict, Any, List
 from pathlib import Path
+from datetime import datetime
 
 from privateclaw.channels.base import BaseChannel
 
 
 class QQChannel(BaseChannel):
-    """QQ channel implementation using QQ Official Bot API.
+    """QQ Bot channel implementation.
 
-    Setup:
-    1. Register at https://q.qq.com
-    2. Create a bot application
-    3. Get bot token and secret
-    4. Configure webhook URL
+    Supports QQ official bot API for receiving and sending messages.
     """
 
     def __init__(self, config: dict):
@@ -30,199 +23,428 @@ class QQChannel(BaseChannel):
         super().__init__("qq", config)
         self.bot_id = config.get("bot_id", "")
         self.bot_secret = config.get("bot_secret", "")
-        self.sandbox = config.get("sandbox", True)  # Use sandbox by default
-
+        self.sandbox = config.get("sandbox", True)
+        self._message_handler: Optional[Callable] = None
         self._api_base = "https://api.sgroup.qq.com" if not self.sandbox else "https://sandbox.api.sgroup.qq.com"
-        self._agent = None
-        self._memory = None
-        self._session_manager = None
-        self._message_handler = None
+        self._access_token: Optional[str] = None
+        self._token_expires_at: float = 0
 
-        # Message callback
-        self._on_message: Optional[Callable[[str, str, str], Awaitable[None]]] = None
+        # Data storage
+        self.storage_dir = Path("data/qq")
+        self.storage_dir.mkdir(parents=True, exist_ok=True)
 
-    def set_agent(self, agent):
-        """Set the agent instance."""
-        self._agent = agent
+        from rich.console import Console
+        from rich.panel import Panel
 
-    def set_memory(self, memory):
-        """Set the memory instance."""
-        self._memory = memory
+        console = Console()
+        console.print(Panel(
+            f"[bold green]QQ Channel Configuration[/bold green]\n\n"
+            f"Bot ID: {self.bot_id}\n"
+            f"Sandbox: {self.sandbox}\n"
+            f"API Base: {self._api_base}\n"
+            f"Storage: {self.storage_dir}",
+            title="📱 QQ Bot",
+            style="blue",
+        ))
 
-    def set_session_manager(self, session_manager):
-        """Set the session manager."""
-        self._session_manager = session_manager
-
-    def on_message(self, callback: Callable[[str, str, str], Awaitable[None]]):
-        """Set message callback."""
-        self._on_message = callback
-
-    async def _get_access_token(self) -> str:
-        """Get access token from QQ API."""
-        import httpx
-
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                f"{self._api_base}/oauth2/token",
-                data={
-                    "grant_type": "client_credentials",
-                    "client_id": self.bot_id,
-                    "client_secret": self.bot_secret,
-                }
-            )
-            data = response.json()
-            return data.get("access_token", "")
-
-    async def send_message(self, target: str, message: str, **kwargs) -> bool:
-        """Send message to QQ.
+    def _generate_signature(self, plain_token: str, event_ts: str) -> str:
+        """Generate ed25519 signature for QQ webhook validation.
 
         Args:
-            target: Channel ID or user ID
-            message: Message content
-            **kwargs: Additional options (msg_type, etc.)
-        """
-        import httpx
-
-        try:
-            token = await self._get_access_token()
-            if not token:
-                print("[QQ] Failed to get access token")
-                return False
-
-            msg_type = kwargs.get("msg_type", 0)  # 0=text, 1=rich, 2=markdown, 3=ark, 4=embed, 7=media
-
-            headers = {
-                "Authorization": f"Bot {self.bot_id}.{token}",
-                "Content-Type": "application/json",
-            }
-
-            payload = {
-                "content": message,
-                "msg_type": msg_type,
-            }
-
-            # Add message ID for reply if provided
-            if "msg_id" in kwargs:
-                payload["msg_id"] = kwargs["msg_id"]
-
-            async with httpx.AsyncClient() as client:
-                response = await client.post(
-                    f"{self._api_base}/channels/{target}/messages",
-                    headers=headers,
-                    json=payload,
-                )
-
-                if response.status_code == 200:
-                    return True
-                else:
-                    print(f"[QQ] Send failed: {response.status_code} - {response.text}")
-                    return False
-
-        except Exception as e:
-            print(f"[QQ] Send error: {e}")
-            return False
-
-    async def handle_webhook(self, event_data: dict) -> dict:
-        """Handle incoming webhook event from QQ.
-
-        Args:
-            event_data: The webhook event payload
+            plain_token: Token from QQ validation request
+            event_ts: Timestamp from QQ validation request
 
         Returns:
-            Response data
+            Hex-encoded signature string
         """
         try:
-            event_type = event_data.get("t", "")
-            data = event_data.get("d", {})
+            import nacl.signing
+            import nacl.encoding
 
-            # Handle different event types
-            if event_type == "AT_MESSAGE_CREATE":
-                # Someone @mentioned the bot
-                await self._handle_at_message(data)
-            elif event_type == "DIRECT_MESSAGE_CREATE":
-                # Direct message to bot
-                await self._handle_direct_message(data)
-            elif event_type == "MESSAGE_CREATE":
-                # Regular message (if bot has intent)
-                await self._handle_message(data)
+            # Use bot_secret as seed for ed25519 key generation
+            # Pad or truncate to 32 bytes (ed25519 seed size)
+            seed = self.bot_secret.encode('utf-8')
+            # Pad seed to 32 bytes if shorter
+            while len(seed) < 32:
+                seed = seed + seed
+            seed = seed[:32]
 
+            # Generate signing key from seed
+            signing_key = nacl.signing.SigningKey(seed)
+
+            # Create message: event_ts + plain_token
+            message = (event_ts + plain_token).encode('utf-8')
+
+            # Sign the message
+            signed = signing_key.sign(message)
+            signature = signed.signature.hex()
+
+            return signature
+
+        except ImportError:
+            # Fallback: use hashlib if nacl is not available
+            logging.warning("[QQ] nacl library not available, using fallback signature method")
+
+            # Simple fallback - this may not work for QQ validation
+            # but allows the service to start
+            message = (event_ts + plain_token).encode('utf-8')
+            key = self.bot_secret.encode('utf-8')
+            signature = hmac.new(key, message, hashlib.sha256).hexdigest()
+
+            return signature
+
+    def on_message(self, handler: Callable) -> None:
+        """Register message handler."""
+        self._message_handler = handler
+
+    async def handle_webhook(self, data: dict) -> dict:
+        """Handle incoming webhook from QQ.
+
+        Args:
+            data: Webhook payload from QQ
+
+        Returns:
+            Response dict
+        """
+        try:
+            logging.info(f"[QQ] Received webhook: {json.dumps(data, ensure_ascii=False)[:200]}")
+
+            # Check if this is a validation request (op: 13)
+            op = data.get("op")
+            if op == 13:
+                # Callback address validation
+                d = data.get("d", {})
+                plain_token = d.get("plain_token", "")
+                event_ts = d.get("event_ts", "")
+
+                logging.info(f"[QQ] Validation request: plain_token={plain_token}, event_ts={event_ts}")
+
+                # Generate signature
+                signature = self._generate_signature(plain_token, event_ts)
+
+                response = {
+                    "plain_token": plain_token,
+                    "signature": signature
+                }
+
+                logging.info(f"[QQ] Validation response: {response}")
+                return response
+
+            # Handle regular events (op: 0)
+            if op == 0:
+                event_type = data.get("t", "")
+                event_data = data.get("d", {})
+
+                logging.info(f"[QQ] Event: {event_type}")
+
+                # Handle different event types
+                if event_type == "C2C_MESSAGE_CREATE":
+                    # User sent a direct message to bot
+                    await self._handle_c2c_message(event_data)
+
+                elif event_type == "GROUP_AT_MESSAGE_CREATE":
+                    # User @mentioned bot in a group
+                    await self._handle_group_message(event_data)
+
+                elif event_type == "FRIEND_ADD":
+                    # User added bot as friend
+                    logging.info(f"[QQ] Friend added: {event_data}")
+
+                elif event_type == "FRIEND_DEL":
+                    # User removed bot from friends
+                    logging.info(f"[QQ] Friend removed: {event_data}")
+
+                elif event_type == "GROUP_ADD_ROBOT":
+                    # Bot added to group
+                    logging.info(f"[QQ] Bot added to group: {event_data}")
+
+                elif event_type == "GROUP_DEL_ROBOT":
+                    # Bot removed from group
+                    logging.info(f"[QQ] Bot removed from group: {event_data}")
+
+                return {"code": 0, "message": "ok"}
+
+            # Default response for other ops
             return {"code": 0, "message": "ok"}
 
         except Exception as e:
-            print(f"[QQ] Webhook error: {e}")
+            logging.error(f"[QQ] Webhook error: {e}")
             return {"code": -1, "message": str(e)}
 
-    async def _handle_at_message(self, data: dict):
-        """Handle @mention message."""
-        content = data.get("content", "").strip()
-        channel_id = data.get("channel_id", "")
-        msg_id = data.get("id", "")
-        author = data.get("author", {})
-        user_id = author.get("id", "")
+    async def _handle_c2c_message(self, data: dict) -> None:
+        """Handle C2C (direct) message from user.
 
-        # Remove @bot mention from content
-        # QQ format: <@!bot_id> message
-        import re
-        content = re.sub(r'<@!\d+>', '', content).strip()
+        Args:
+            data: Message event data
+        """
+        try:
+            msg_id = data.get("id", "")
+            content = data.get("content", "")
+            author = data.get("author", {})
+            user_openid = author.get("user_openid", "")
 
-        if not content:
-            return
+            logging.info(f"[QQ] C2C message from {user_openid}: {content[:100]}")
 
-        # Use channel_id as session
-        session_id = f"qq_{channel_id}"
+            # Store message
+            await self._store_message({
+                "type": "c2c",
+                "msg_id": msg_id,
+                "user_openid": user_openid,
+                "content": content,
+                "timestamp": datetime.now().isoformat(),
+            })
 
-        if self._agent:
-            response = await self._agent.run(content, session_id, user_id)
-            await self.send_message(
-                channel_id,
-                response,
-                msg_id=msg_id,
-            )
+            # Call message handler if registered
+            if self._message_handler:
+                await self._message_handler(
+                    channel_name="qq",
+                    sender=user_openid,
+                    message=content,
+                    metadata={
+                        "msg_id": msg_id,
+                        "msg_type": "c2c",
+                    }
+                )
 
-    async def _handle_direct_message(self, data: dict):
-        """Handle direct message."""
-        content = data.get("content", "").strip()
-        msg_id = data.get("id", "")
-        author = data.get("author", {})
-        user_id = author.get("id", "")
-        guild_id = data.get("guild_id", "")
+        except Exception as e:
+            logging.error(f"[QQ] Handle C2C message error: {e}")
 
-        if not content:
-            return
+    async def _handle_group_message(self, data: dict) -> None:
+        """Handle group message with @mention.
 
-        session_id = f"qq_dm_{user_id}"
+        Args:
+            data: Message event data
+        """
+        try:
+            msg_id = data.get("id", "")
+            content = data.get("content", "")
+            author = data.get("author", {})
+            member_openid = author.get("member_openid", "")
+            group_openid = data.get("group_openid", "")
 
-        if self._agent:
-            response = await self._agent.run(content, session_id, user_id)
-            await self.send_message(
-                guild_id,
-                response,
-                msg_id=msg_id,
-            )
+            logging.info(f"[QQ] Group message from {member_openid} in {group_openid}: {content[:100]}")
 
-    async def _handle_message(self, data: dict):
-        """Handle regular message."""
-        # Similar to at_message but for groups where bot has message intent
-        await self._handle_at_message(data)
+            # Store message
+            await self._store_message({
+                "type": "group",
+                "msg_id": msg_id,
+                "group_openid": group_openid,
+                "member_openid": member_openid,
+                "content": content,
+                "timestamp": datetime.now().isoformat(),
+            })
+
+            # Call message handler if registered
+            if self._message_handler:
+                await self._message_handler(
+                    channel_name="qq",
+                    sender=member_openid,
+                    message=content,
+                    metadata={
+                        "msg_id": msg_id,
+                        "msg_type": "group",
+                        "group_openid": group_openid,
+                    }
+                )
+
+        except Exception as e:
+            logging.error(f"[QQ] Handle group message error: {e}")
+
+    async def _store_message(self, message: dict) -> None:
+        """Store message to local storage.
+
+        Args:
+            message: Message data to store
+        """
+        try:
+            today = datetime.now().strftime("%Y-%m-%d")
+            file_path = self.storage_dir / f"messages_{today}.json"
+
+            # Read existing messages
+            messages = []
+            if file_path.exists():
+                with open(file_path, "r", encoding="utf-8") as f:
+                    messages = json.load(f)
+
+            # Append new message
+            messages.append(message)
+
+            # Write back
+            with open(file_path, "w", encoding="utf-8") as f:
+                json.dump(messages, f, ensure_ascii=False, indent=2)
+
+        except Exception as e:
+            logging.error(f"[QQ] Store message error: {e}")
+
+    async def send_message(self, target: str, message: str, **kwargs) -> bool:
+        """Send message to QQ user or group.
+
+        Args:
+            target: User openid or group openid
+            message: Message content
+            **kwargs: Additional options (msg_type, group_openid, etc.)
+
+        Returns:
+            True if successful
+        """
+        try:
+            msg_type = kwargs.get("msg_type", "c2c")
+
+            if msg_type == "group":
+                # Send to group
+                group_openid = kwargs.get("group_openid", target)
+                result = await self._send_group_message(group_openid, message)
+            else:
+                # Send direct message
+                result = await self._send_c2c_message(target, message)
+
+            return result
+
+        except Exception as e:
+            logging.error(f"[QQ] Send message error: {e}")
+            return False
+
+    async def _send_c2c_message(self, user_openid: str, content: str) -> bool:
+        """Send direct message to user.
+
+        Args:
+            user_openid: User's openid
+            content: Message content
+
+        Returns:
+            True if successful
+        """
+        try:
+            import aiohttp
+
+            # Get access token
+            token = await self._get_access_token()
+            if not token:
+                return False
+
+            url = f"{self._api_base}/v2/users/{user_openid}/messages"
+
+            payload = {
+                "content": content,
+                "msg_type": 0,  # Text message
+                "msg_id": "0",  # Will be filled by QQ server
+            }
+
+            headers = {
+                "Authorization": f"QQBot {token}",
+                "Content-Type": "application/json",
+            }
+
+            async with aiohttp.ClientSession() as session:
+                async with session.post(url, json=payload, headers=headers) as resp:
+                    if resp.status == 200:
+                        logging.info(f"[QQ] Message sent to {user_openid}")
+                        return True
+                    else:
+                        error = await resp.text()
+                        logging.error(f"[QQ] Send message failed: {resp.status} - {error}")
+                        return False
+
+        except Exception as e:
+            logging.error(f"[QQ] Send C2C message error: {e}")
+            return False
+
+    async def _send_group_message(self, group_openid: str, content: str) -> bool:
+        """Send message to group.
+
+        Args:
+            group_openid: Group's openid
+            content: Message content
+
+        Returns:
+            True if successful
+        """
+        try:
+            import aiohttp
+
+            # Get access token
+            token = await self._get_access_token()
+            if not token:
+                return False
+
+            url = f"{self._api_base}/v2/groups/{group_openid}/messages"
+
+            payload = {
+                "content": content,
+                "msg_type": 0,  # Text message
+                "msg_id": "0",  # Will be filled by QQ server
+            }
+
+            headers = {
+                "Authorization": f"QQBot {token}",
+                "Content-Type": "application/json",
+            }
+
+            async with aiohttp.ClientSession() as session:
+                async with session.post(url, json=payload, headers=headers) as resp:
+                    if resp.status == 200:
+                        logging.info(f"[QQ] Message sent to group {group_openid}")
+                        return True
+                    else:
+                        error = await resp.text()
+                        logging.error(f"[QQ] Send group message failed: {resp.status} - {error}")
+                        return False
+
+        except Exception as e:
+            logging.error(f"[QQ] Send group message error: {e}")
+            return False
+
+    async def _get_access_token(self) -> Optional[str]:
+        """Get QQ bot access token.
+
+        Returns:
+            Access token string or None
+        """
+        try:
+            import aiohttp
+            import time
+
+            # Check if token is still valid
+            if self._access_token and time.time() < self._token_expires_at:
+                return self._access_token
+
+            # Request new token
+            url = f"{self._api_base}/oauth2/token"
+
+            payload = {
+                "grant_type": "client_credentials",
+                "client_id": self.bot_id,
+                "client_secret": self.bot_secret,
+            }
+
+            async with aiohttp.ClientSession() as session:
+                async with session.post(url, json=payload) as resp:
+                    if resp.status == 200:
+                        data = await resp.json()
+                        self._access_token = data.get("access_token")
+                        expires_in = data.get("expires_in", 7200)
+                        self._token_expires_at = time.time() + expires_in - 300  # 5 min buffer
+
+                        logging.info(f"[QQ] Access token refreshed, expires in {expires_in}s")
+                        return self._access_token
+                    else:
+                        error = await resp.text()
+                        logging.error(f"[QQ] Get access token failed: {resp.status} - {error}")
+                        return None
+
+        except Exception as e:
+            logging.error(f"[QQ] Get access token error: {e}")
+            return None
 
     async def start(self) -> None:
-        """Start the QQ channel (no-op for webhook mode)."""
+        """Start the QQ channel."""
+        logging.info("[QQ] Channel started (webhook mode)")
         self._is_running = True
-        print("[QQ] Channel started (webhook mode)")
-        print(f"[QQ] Bot ID: {self.bot_id}")
-        print(f"[QQ] Sandbox: {self.sandbox}")
-
-        # Keep running
-        try:
-            while self._is_running:
-                await asyncio.sleep(1)
-        except asyncio.CancelledError:
-            pass
 
     async def stop(self) -> None:
         """Stop the QQ channel."""
+        logging.info("[QQ] Channel stopped")
         self._is_running = False
-        print("[QQ] Channel stopped")
 
     def get_info(self) -> dict:
         """Get channel information."""
