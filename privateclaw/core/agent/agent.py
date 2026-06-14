@@ -472,42 +472,54 @@ class PrivateClawAgent:
     def _create_tool_from_skill(self, skill) -> Optional[PrivateClawTool]:
         """Create a PrivateClawTool from a ToolSkill."""
         try:
-            # Prepare namespace with all common imports
             import os
             import sys
             import json
             import subprocess
             import fnmatch
+            import datetime
+            import urllib.request
+            import urllib.parse
             from pathlib import Path
             from pydantic import BaseModel, Field
             from typing import Type, Optional, Dict, Any, List
 
+            # Build namespace with everything needed
             namespace = {
-                # Core
                 'PrivateClawTool': PrivateClawTool,
-                '__builtins__': __builtins__,
-                # Standard library
-                'os': os,
-                'sys': sys,
-                'json': json,
-                'subprocess': subprocess,
-                'fnmatch': fnmatch,
-                'Path': Path,
-                # Typing
+                'BaseModel': BaseModel,
+                'Field': Field,
                 'Type': Type,
                 'Optional': Optional,
                 'Dict': Dict,
                 'Any': Any,
                 'List': List,
-                # Pydantic
-                'BaseModel': BaseModel,
-                'Field': Field,
+                'os': os,
+                'sys': sys,
+                'json': json,
+                'subprocess': subprocess,
+                'fnmatch': fnmatch,
+                'datetime': datetime,
+                'Path': Path,
+                'urllib': type('Module', (), {'request': urllib.request, 'parse': urllib.parse})(),
+                '__builtins__': __builtins__,
             }
 
-            # Execute the skill code directly (imports will use namespace modules)
-            exec(skill.tool_code, namespace)
+            # Remove import lines to avoid import errors
+            code = skill.tool_code
+            lines = code.split('\n')
+            clean_lines = []
+            for line in lines:
+                stripped = line.strip()
+                if stripped.startswith('from ') or stripped.startswith('import '):
+                    continue  # Skip import lines
+                clean_lines.append(line)
+            clean_code = '\n'.join(clean_lines)
 
-            # Find the tool class
+            # Execute
+            exec(clean_code, namespace)
+
+            # Find tool class
             for obj_name, obj in namespace.items():
                 if (isinstance(obj, type) and
                     issubclass(obj, PrivateClawTool) and
