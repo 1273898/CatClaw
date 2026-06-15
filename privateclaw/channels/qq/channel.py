@@ -96,6 +96,7 @@ class QQChannel(BaseChannel):
     def on_message(self, handler: Callable) -> None:
         """Register message handler."""
         self._message_handler = handler
+        logging.info(f"[QQ] Message handler registered: {handler}")
 
     async def handle_webhook(self, data: dict) -> dict:
         """Handle incoming webhook from QQ.
