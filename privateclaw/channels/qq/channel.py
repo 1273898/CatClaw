@@ -11,6 +11,10 @@ from datetime import datetime
 
 from privateclaw.channels.base import BaseChannel
 
+# Configure logging for this module
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 
 class QQChannel(BaseChannel):
     """QQ Bot channel implementation.
@@ -86,7 +90,7 @@ class QQChannel(BaseChannel):
 
         except ImportError:
             # Fallback: use hashlib if nacl is not available
-            logging.warning("[QQ] nacl library not available, using fallback signature method")
+            logger.warning("[QQ] nacl library not available, using fallback signature method")
 
             # Simple fallback - this may not work for QQ validation
             # but allows the service to start
@@ -111,7 +115,7 @@ class QQChannel(BaseChannel):
     def on_message(self, handler: Callable) -> None:
         """Register message handler."""
         self._message_handler = handler
-        logging.info(f"[QQ] Message handler registered: {handler}")
+        logger.info(f"[QQ] Message handler registered: {handler}")
 
     async def handle_webhook(self, data: dict) -> dict:
         """Handle incoming webhook from QQ.
@@ -123,8 +127,8 @@ class QQChannel(BaseChannel):
             Response dict
         """
         try:
-            logging.info(f"[QQ] Received webhook: {json.dumps(data, ensure_ascii=False)[:200]}")
-            logging.info(f"[QQ] _message_handler is set: {self._message_handler is not None}")
+            logger.info(f"[QQ] Received webhook: {json.dumps(data, ensure_ascii=False)[:200]}")
+            logger.info(f"[QQ] _message_handler is set: {self._message_handler is not None}")
 
             # Check if this is a validation request (op: 13)
             op = data.get("op")
@@ -134,7 +138,7 @@ class QQChannel(BaseChannel):
                 plain_token = d.get("plain_token", "")
                 event_ts = d.get("event_ts", "")
 
-                logging.info(f"[QQ] Validation request: plain_token={plain_token}, event_ts={event_ts}")
+                logger.info(f"[QQ] Validation request: plain_token={plain_token}, event_ts={event_ts}")
 
                 # Generate signature
                 signature = self._generate_signature(plain_token, event_ts)
@@ -144,7 +148,7 @@ class QQChannel(BaseChannel):
                     "signature": signature
                 }
 
-                logging.info(f"[QQ] Validation response: {response}")
+                logger.info(f"[QQ] Validation response: {response}")
                 return response
 
             # Handle regular events (op: 0)
@@ -152,7 +156,7 @@ class QQChannel(BaseChannel):
                 event_type = data.get("t", "")
                 event_data = data.get("d", {})
 
-                logging.info(f"[QQ] Event: {event_type}")
+                logger.info(f"[QQ] Event: {event_type}")
 
                 # Handle different event types
                 if event_type == "C2C_MESSAGE_CREATE":
@@ -165,19 +169,19 @@ class QQChannel(BaseChannel):
 
                 elif event_type == "FRIEND_ADD":
                     # User added bot as friend
-                    logging.info(f"[QQ] Friend added: {event_data}")
+                    logger.info(f"[QQ] Friend added: {event_data}")
 
                 elif event_type == "FRIEND_DEL":
                     # User removed bot from friends
-                    logging.info(f"[QQ] Friend removed: {event_data}")
+                    logger.info(f"[QQ] Friend removed: {event_data}")
 
                 elif event_type == "GROUP_ADD_ROBOT":
                     # Bot added to group
-                    logging.info(f"[QQ] Bot added to group: {event_data}")
+                    logger.info(f"[QQ] Bot added to group: {event_data}")
 
                 elif event_type == "GROUP_DEL_ROBOT":
                     # Bot removed from group
-                    logging.info(f"[QQ] Bot removed from group: {event_data}")
+                    logger.info(f"[QQ] Bot removed from group: {event_data}")
 
                 return {"code": 0, "message": "ok"}
 
@@ -185,7 +189,7 @@ class QQChannel(BaseChannel):
             return {"code": 0, "message": "ok"}
 
         except Exception as e:
-            logging.error(f"[QQ] Webhook error: {e}")
+            logger.error(f"[QQ] Webhook error: {e}")
             return {"code": -1, "message": str(e)}
 
     async def _handle_c2c_message(self, data: dict) -> None:
@@ -200,8 +204,8 @@ class QQChannel(BaseChannel):
             author = data.get("author", {})
             user_openid = author.get("user_openid", "")
 
-            logging.info(f"[QQ] C2C message from {user_openid}: {content[:100]}")
-            logging.info(f"[QQ] Message ID: {msg_id}")
+            logger.info(f"[QQ] C2C message from {user_openid}: {content[:100]}")
+            logger.info(f"[QQ] Message ID: {msg_id}")
 
             if not content.strip():
                 return
@@ -243,11 +247,13 @@ class QQChannel(BaseChannel):
                     sender=user_openid,
                 )
 
-            # Send response to QQ
-            await self._send_c2c_message(user_openid, response, msg_id)
+            # Send response to QQ (生成新的msg_id，不使用原来的msg_id)
+            import uuid
+            reply_msg_id = str(uuid.uuid4())
+            await self._send_c2c_message(user_openid, response, reply_msg_id)
 
         except Exception as e:
-            logging.error(f"[QQ] Handle C2C message error: {e}")
+            logger.error(f"[QQ] Handle C2C message error: {e}")
             import traceback
             traceback.print_exc()
 
@@ -264,7 +270,7 @@ class QQChannel(BaseChannel):
             member_openid = author.get("member_openid", "")
             group_openid = data.get("group_openid", "")
 
-            logging.info(f"[QQ] Group message from {member_openid} in {group_openid}: {content[:100]}")
+            logger.info(f"[QQ] Group message from {member_openid} in {group_openid}: {content[:100]}")
 
             if not content.strip():
                 return
@@ -307,11 +313,13 @@ class QQChannel(BaseChannel):
                     sender=member_openid,
                 )
 
-            # Send response to group
-            await self._send_group_message(group_openid, response, msg_id)
+            # Send response to group (生成新的msg_id)
+            import uuid
+            reply_msg_id = str(uuid.uuid4())
+            await self._send_group_message(group_openid, response, reply_msg_id)
 
         except Exception as e:
-            logging.error(f"[QQ] Handle group message error: {e}")
+            logger.error(f"[QQ] Handle group message error: {e}")
             import traceback
             traceback.print_exc()
 
@@ -339,7 +347,7 @@ class QQChannel(BaseChannel):
                 json.dump(messages, f, ensure_ascii=False, indent=2)
 
         except Exception as e:
-            logging.error(f"[QQ] Store message error: {e}")
+            logger.error(f"[QQ] Store message error: {e}")
 
     async def send_message(self, target: str, message: str, **kwargs) -> bool:
         """Send message to QQ user or group.
@@ -367,7 +375,7 @@ class QQChannel(BaseChannel):
             return result
 
         except Exception as e:
-            logging.error(f"[QQ] Send message error: {e}")
+            logger.error(f"[QQ] Send message error: {e}")
             return False
 
     async def _send_c2c_message(self, user_openid: str, content: str, msg_id: str = None) -> bool:
@@ -408,15 +416,15 @@ class QQChannel(BaseChannel):
             async with aiohttp.ClientSession() as session:
                 async with session.post(url, json=payload, headers=headers) as resp:
                     if resp.status == 200:
-                        logging.info(f"[QQ] Message sent to {user_openid}")
+                        logger.info(f"[QQ] Message sent to {user_openid}")
                         return True
                     else:
                         error = await resp.text()
-                        logging.error(f"[QQ] Send message failed: {resp.status} - {error}")
+                        logger.error(f"[QQ] Send message failed: {resp.status} - {error}")
                         return False
 
         except Exception as e:
-            logging.error(f"[QQ] Send C2C message error: {e}")
+            logger.error(f"[QQ] Send C2C message error: {e}")
             return False
 
     async def _send_group_message(self, group_openid: str, content: str, msg_id: str = None) -> bool:
@@ -457,15 +465,15 @@ class QQChannel(BaseChannel):
             async with aiohttp.ClientSession() as session:
                 async with session.post(url, json=payload, headers=headers) as resp:
                     if resp.status == 200:
-                        logging.info(f"[QQ] Message sent to group {group_openid}")
+                        logger.info(f"[QQ] Message sent to group {group_openid}")
                         return True
                     else:
                         error = await resp.text()
-                        logging.error(f"[QQ] Send group message failed: {resp.status} - {error}")
+                        logger.error(f"[QQ] Send group message failed: {resp.status} - {error}")
                         return False
 
         except Exception as e:
-            logging.error(f"[QQ] Send group message error: {e}")
+            logger.error(f"[QQ] Send group message error: {e}")
             return False
 
     async def _get_access_token(self) -> Optional[str]:
@@ -498,25 +506,25 @@ class QQChannel(BaseChannel):
                         expires_in = int(data.get("expires_in", 7200))
                         self._token_expires_at = time.time() + expires_in - 300  # 5 min buffer
 
-                        logging.info(f"[QQ] Access token refreshed, expires in {expires_in}s")
+                        logger.info(f"[QQ] Access token refreshed, expires in {expires_in}s")
                         return self._access_token
                     else:
                         error = await resp.text()
-                        logging.error(f"[QQ] Get access token failed: {resp.status} - {error}")
+                        logger.error(f"[QQ] Get access token failed: {resp.status} - {error}")
                         return None
 
         except Exception as e:
-            logging.error(f"[QQ] Get access token error: {e}")
+            logger.error(f"[QQ] Get access token error: {e}")
             return None
 
     async def start(self) -> None:
         """Start the QQ channel."""
-        logging.info("[QQ] Channel started (webhook mode)")
+        logger.info("[QQ] Channel started (webhook mode)")
         self._is_running = True
 
     async def stop(self) -> None:
         """Stop the QQ channel."""
-        logging.info("[QQ] Channel stopped")
+        logger.info("[QQ] Channel stopped")
         self._is_running = False
 
     def get_info(self) -> dict:
