@@ -126,7 +126,13 @@
       "Bash(git commit -m 'debug: 添加Gateway消息处理调试日志 *)",
       "Bash(git commit -m 'fix: 使用logging代替print输出调试日志 *)",
       "Bash(git commit -m 'debug: 添加QQ消息handler注册日志 *)",
-      "Bash(git commit -m 'debug: 添加webhook处理和handler状态日志 *)"
+      "Bash(git commit -m 'debug: 添加webhook处理和handler状态日志 *)",
+      "Bash(python *)",
+      "Bash(set PYTHONIOENCODING=utf-8)",
+      "Bash(PYTHONIOENCODING=utf-8 python run.py serve)",
+      "Bash(pkill -f \"python run.py serve\")",
+      "Bash(taskkill //F //IM python.exe)",
+      "Bash(git commit -m 'fix: QQ渠道直接使用agent和memory处理消息 *)"
     ]
   }
 }

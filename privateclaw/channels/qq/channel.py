@@ -25,6 +25,9 @@ class QQChannel(BaseChannel):
         self.bot_secret = config.get("bot_secret", "")
         self.sandbox = config.get("sandbox", True)
         self._message_handler: Optional[Callable] = None
+        self._agent = None
+        self._memory = None
+        self._session_manager = None
         self._api_base = "https://api.sgroup.qq.com" if not self.sandbox else "https://sandbox.api.sgroup.qq.com"
         self._access_token: Optional[str] = None
         self._token_expires_at: float = 0
@@ -92,6 +95,18 @@ class QQChannel(BaseChannel):
             signature = hmac.new(key, message, hashlib.sha256).hexdigest()
 
             return signature
+
+    def set_agent(self, agent):
+        """Set the agent instance."""
+        self._agent = agent
+
+    def set_memory(self, memory):
+        """Set the memory instance."""
+        self._memory = memory
+
+    def set_session_manager(self, session_manager):
+        """Set the session manager instance."""
+        self._session_manager = session_manager
 
     def on_message(self, handler: Callable) -> None:
         """Register message handler."""
@@ -188,7 +203,10 @@ class QQChannel(BaseChannel):
             logging.info(f"[QQ] C2C message from {user_openid}: {content[:100]}")
             logging.info(f"[QQ] Message ID: {msg_id}")
 
-            # Store message
+            if not content.strip():
+                return
+
+            # Store message to local storage
             await self._store_message({
                 "type": "c2c",
                 "msg_id": msg_id,
@@ -197,20 +215,41 @@ class QQChannel(BaseChannel):
                 "timestamp": datetime.now().isoformat(),
             })
 
-            # Call message handler if registered
-            if self._message_handler:
-                await self._message_handler(
-                    channel_name="qq",
+            # Process message and get response
+            session_id = f"qq:{user_openid}"
+
+            # Store user message to memory for web UI access
+            if self._memory:
+                await self._memory.store_conversation(
+                    session_id=session_id,
+                    user_message=content,
+                    channel="qq",
                     sender=user_openid,
-                    message=content,
-                    metadata={
-                        "msg_id": msg_id,
-                        "msg_type": "c2c",
-                    }
                 )
+
+            # Get agent response
+            response = ""
+            if self._agent:
+                response = await self._agent.run(content, session_id, user_openid)
+            else:
+                response = f"您好，我收到了您的消息：「{content}」。当前 Agent 未初始化，请稍后再试。"
+
+            # Store assistant response to memory
+            if self._memory and response:
+                await self._memory.store_conversation(
+                    session_id=session_id,
+                    assistant_message=response,
+                    channel="qq",
+                    sender=user_openid,
+                )
+
+            # Send response to QQ
+            await self._send_c2c_message(user_openid, response, msg_id)
 
         except Exception as e:
             logging.error(f"[QQ] Handle C2C message error: {e}")
+            import traceback
+            traceback.print_exc()
 
     async def _handle_group_message(self, data: dict) -> None:
         """Handle group message with @mention.
@@ -227,7 +266,10 @@ class QQChannel(BaseChannel):
 
             logging.info(f"[QQ] Group message from {member_openid} in {group_openid}: {content[:100]}")
 
-            # Store message
+            if not content.strip():
+                return
+
+            # Store message to local storage
             await self._store_message({
                 "type": "group",
                 "msg_id": msg_id,
@@ -237,21 +279,41 @@ class QQChannel(BaseChannel):
                 "timestamp": datetime.now().isoformat(),
             })
 
-            # Call message handler if registered
-            if self._message_handler:
-                await self._message_handler(
-                    channel_name="qq",
+            # Process message and get response
+            session_id = f"qq:group:{group_openid}:{member_openid}"
+
+            # Store user message to memory for web UI access
+            if self._memory:
+                await self._memory.store_conversation(
+                    session_id=session_id,
+                    user_message=content,
+                    channel="qq",
                     sender=member_openid,
-                    message=content,
-                    metadata={
-                        "msg_id": msg_id,
-                        "msg_type": "group",
-                        "group_openid": group_openid,
-                    }
                 )
+
+            # Get agent response
+            response = ""
+            if self._agent:
+                response = await self._agent.run(content, session_id, member_openid)
+            else:
+                response = f"您好，我收到了您的消息：「{content}」。当前 Agent 未初始化，请稍后再试。"
+
+            # Store assistant response to memory
+            if self._memory and response:
+                await self._memory.store_conversation(
+                    session_id=session_id,
+                    assistant_message=response,
+                    channel="qq",
+                    sender=member_openid,
+                )
+
+            # Send response to group
+            await self._send_group_message(group_openid, response, msg_id)
 
         except Exception as e:
             logging.error(f"[QQ] Handle group message error: {e}")
+            import traceback
+            traceback.print_exc()
 
     async def _store_message(self, message: dict) -> None:
         """Store message to local storage.

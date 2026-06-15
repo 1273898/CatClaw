@@ -2,19 +2,26 @@
 
 import asyncio
 import sys
+import os
 from typing import Optional
 import click
 from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
 
+# Set UTF-8 encoding for Windows
+if sys.platform == 'win32':
+    os.environ['PYTHONIOENCODING'] = 'utf-8'
+    # Force Rich to use UTF-8
+    console = Console(force_terminal=True, force_jupyter=False)
+else:
+    console = Console()
+
 from privateclaw.config.settings import Settings, get_settings
 from privateclaw.core.agent.agent import PrivateClawAgent
 from privateclaw.core.llm.factory import LLMFactory
 from privateclaw.core.memory.manager import MemoryManager
 from privateclaw.core.tools.registry import ToolRegistry
-
-console = Console()
 
 
 def create_agent(settings: Settings) -> PrivateClawAgent:

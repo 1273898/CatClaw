@@ -61,7 +61,7 @@ class WebChannel(BaseChannel):
 
     def _create_app(self):
         """Create the FastAPI application with all routes."""
-        from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+        from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
         from fastapi.staticfiles import StaticFiles
         from fastapi.responses import HTMLResponse
         from fastapi.middleware.cors import CORSMiddleware
@@ -118,18 +118,31 @@ class WebChannel(BaseChannel):
 
         # Webhook endpoints
         for path, handler in self._webhooks.items():
-            # Use a factory function to properly capture handler reference
+            # Create endpoint function with proper closure
             def create_webhook_endpoint(h):
-                async def webhook_endpoint(request_data: dict):
+                async def webhook_endpoint(request: Request):
                     """Handle webhook request."""
                     try:
-                        result = await h(request_data)
+                        # Read raw body
+                        body_bytes = await request.body()
+                        body_str = body_bytes.decode('utf-8')
+
+                        # Parse JSON
+                        import json
+                        body = json.loads(body_str)
+
+                        logging.info(f"[Web] Webhook received: {body_str[:200]}")
+
+                        result = await h(body)
                         return result
                     except Exception as e:
+                        logging.error(f"[Web] Webhook error: {e}")
                         return {"code": -1, "message": str(e)}
                 return webhook_endpoint
 
-            app.post(path)(create_webhook_endpoint(handler))
+            # Register endpoint with proper path
+            endpoint_func = create_webhook_endpoint(handler)
+            app.add_api_route(path, endpoint_func, methods=["POST"])
 
         # Static files
         static_dir = Path(__file__).parent / "static"
