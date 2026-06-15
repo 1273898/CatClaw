@@ -24,6 +24,9 @@ import {
   IconSearch,
   IconClock,
   IconMessage,
+  IconBrandTelegram,
+  IconWorld,
+  IconDeviceDesktop,
 } from '@tabler/icons-react'
 
 function SessionsPage({ onSessionSelect }) {
@@ -86,6 +89,21 @@ function SessionsPage({ onSessionSelect }) {
     if (diffHours < 24) return `${diffHours} 小时前`
     if (diffDays < 7) return `${diffDays} 天前`
     return date.toLocaleDateString('zh-CN')
+  }
+
+  const getChannelInfo = (channel) => {
+    switch (channel) {
+      case 'qq':
+        return { label: 'QQ', color: '#12B7F5', icon: <IconBrandTelegram size={14} /> }
+      case 'feishu':
+        return { label: '飞书', color: '#3370FF', icon: <IconBrandTelegram size={14} /> }
+      case 'web':
+        return { label: '网页', color: '#E94560', icon: <IconWorld size={14} /> }
+      case 'cli':
+        return { label: 'CLI', color: '#52c41a', icon: <IconDeviceDesktop size={14} /> }
+      default:
+        return { label: channel || '未知', color: '#999', icon: <IconMessage size={14} /> }
+    }
   }
 
   const filteredSessions = sessions.filter((session) =>
@@ -164,6 +182,19 @@ function SessionsPage({ onSessionSelect }) {
                         <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
                           {session.session_id}
                         </Typography>
+                        {session.channel && (
+                          <Chip
+                            icon={getChannelInfo(session.channel).icon}
+                            label={getChannelInfo(session.channel).label}
+                            size="small"
+                            sx={{
+                              bgcolor: getChannelInfo(session.channel).color + '20',
+                              color: getChannelInfo(session.channel).color,
+                              border: `1px solid ${getChannelInfo(session.channel).color}40`,
+                              fontWeight: 500,
+                            }}
+                          />
+                        )}
                         {session.is_active && (
                           <Chip
                             label="活跃"

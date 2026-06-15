@@ -121,7 +121,9 @@
       "Bash(git commit -m 'fix: 修复Gateway消息处理metadata参数支持 *)",
       "Bash(git commit -m 'fix: 修复QQ机器人access token获取端点 *)",
       "Bash(git commit -m 'fix: 修复QQ消息发送msg_id参数 *)",
-      "Bash(git commit -m 'feat: 支持QQ消息在网页端查看 *)"
+      "Bash(git commit -m 'feat: 支持QQ消息在网页端查看 *)",
+      "Bash(scp -i ~/.ssh/id_rsa -r frontend/dist/* root@47.96.188.112:/opt/projects/catclaw/privateclaw/channels/web/static/)",
+      "Bash(git commit -m 'debug: 添加Gateway消息处理调试日志 *)"
     ]
   }
 }

@@ -93,8 +93,11 @@ class Gateway:
         metadata = kwargs.get("metadata", {})
         session_id = f"{channel_name}:{sender}"
 
+        print(f"[Gateway] Received message from {channel_name}:{sender}: {message[:50]}...")
+
         # Store message to memory for web UI access
         if self.memory:
+            print(f"[Gateway] Storing user message to session: {session_id}")
             await self.memory.store_conversation(
                 session_id=session_id,
                 user_message=message,
@@ -106,12 +109,15 @@ class Gateway:
 
         # Store response to memory
         if self.memory:
+            print(f"[Gateway] Storing assistant response to session: {session_id}")
             await self.memory.store_conversation(
                 session_id=session_id,
                 assistant_message=response,
                 channel=channel_name,
                 sender=sender,
             )
+
+        print(f"[Gateway] Sending response to {channel_name}:{sender}")
 
         # Send response back through the originating channel
         if channel_name in self.channels:
