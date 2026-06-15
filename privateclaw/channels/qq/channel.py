@@ -247,10 +247,8 @@ class QQChannel(BaseChannel):
                     sender=user_openid,
                 )
 
-            # Send response to QQ (生成新的msg_id，不使用原来的msg_id)
-            import uuid
-            reply_msg_id = str(uuid.uuid4())
-            await self._send_c2c_message(user_openid, response, reply_msg_id)
+            # Send response to QQ (不传msg_id，让QQ自动生成)
+            await self._send_c2c_message(user_openid, response, None)
 
         except Exception as e:
             logger.error(f"[QQ] Handle C2C message error: {e}")
@@ -313,10 +311,8 @@ class QQChannel(BaseChannel):
                     sender=member_openid,
                 )
 
-            # Send response to group (生成新的msg_id)
-            import uuid
-            reply_msg_id = str(uuid.uuid4())
-            await self._send_group_message(group_openid, response, reply_msg_id)
+            # Send response to group (不传msg_id，让QQ自动生成)
+            await self._send_group_message(group_openid, response, None)
 
         except Exception as e:
             logger.error(f"[QQ] Handle group message error: {e}")

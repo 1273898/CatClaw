@@ -132,7 +132,8 @@
       "Bash(PYTHONIOENCODING=utf-8 python run.py serve)",
       "Bash(pkill -f \"python run.py serve\")",
       "Bash(taskkill //F //IM python.exe)",
-      "Bash(git commit -m 'fix: QQ渠道直接使用agent和memory处理消息 *)"
+      "Bash(git commit -m 'fix: QQ渠道直接使用agent和memory处理消息 *)",
+      "Bash(git commit -m 'fix: 修复QQ消息发送msg_id格式问题 *)"
     ]
   }
 }
