@@ -109,6 +109,7 @@ class QQChannel(BaseChannel):
         """
         try:
             logging.info(f"[QQ] Received webhook: {json.dumps(data, ensure_ascii=False)[:200]}")
+            logging.info(f"[QQ] _message_handler is set: {self._message_handler is not None}")
 
             # Check if this is a validation request (op: 13)
             op = data.get("op")

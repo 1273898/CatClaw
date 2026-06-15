@@ -125,7 +125,8 @@
       "Bash(scp -i ~/.ssh/id_rsa -r frontend/dist/* root@47.96.188.112:/opt/projects/catclaw/privateclaw/channels/web/static/)",
       "Bash(git commit -m 'debug: 添加Gateway消息处理调试日志 *)",
       "Bash(git commit -m 'fix: 使用logging代替print输出调试日志 *)",
-      "Bash(git commit -m 'debug: 添加QQ消息handler注册日志 *)"
+      "Bash(git commit -m 'debug: 添加QQ消息handler注册日志 *)",
+      "Bash(git commit -m 'debug: 添加webhook处理和handler状态日志 *)"
     ]
   }
 }
